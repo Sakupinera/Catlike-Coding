@@ -1,54 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
-public class FrameRateCounter : MonoBehaviour
+namespace Assets.Scripts.Basics
 {
-    [SerializeField]
-    TextMeshProUGUI display;
-
-    public enum DisplayMode { FPS, MS }
-
-    [SerializeField]
-    DisplayMode displayMode = DisplayMode.FPS;
-
-    [SerializeField, Range(0.1f, 2f)]
-    float sampleDuration = 1f;
-
-    int frames;
-    float duration, bestDuration = float.MaxValue, worstDuration;
-
-    private void Update()
+    public class FrameRateCounter : MonoBehaviour
     {
-        float frameDuration = Time.unscaledDeltaTime;
-        frames += 1;
-        duration += frameDuration;
-        //display.SetText("FPS\n{0:0}\n000\n000", 1f / frameDuration);
+        [SerializeField]
+        TextMeshProUGUI display;
 
-        if (frameDuration < bestDuration)
-        {
-            bestDuration = frameDuration;
-        }
-        if (frameDuration > worstDuration)
-        {
-            worstDuration = frameDuration;
-        }
+        public enum DisplayMode { FPS, MS }
 
-        if (duration >= sampleDuration)
+        [SerializeField]
+        DisplayMode displayMode = DisplayMode.FPS;
+
+        [SerializeField, Range(0.1f, 2f)]
+        float sampleDuration = 1f;
+
+        int frames;
+        float duration, bestDuration = float.MaxValue, worstDuration;
+
+        private void Update()
         {
-            if (displayMode == DisplayMode.FPS)
+            float frameDuration = Time.unscaledDeltaTime;
+            frames += 1;
+            duration += frameDuration;
+            //display.SetText("FPS\n{0:0}\n000\n000", 1f / frameDuration);
+
+            if (frameDuration < bestDuration)
             {
-                display.SetText("FPS\n{0:0}\n{1:0}\n{2:0}", 1f / bestDuration, frames / duration, 1f / worstDuration);
+                bestDuration = frameDuration;
             }
-            else
+            if (frameDuration > worstDuration)
             {
-                display.SetText("FPS\n{0:1}\n{1:1}\n{2:1}", 1000f * bestDuration, 1000f * duration / frames, 1000f * worstDuration);
+                worstDuration = frameDuration;
             }
-            frames = 0;
-            duration = 0f;
-            bestDuration = float.MaxValue;
-            worstDuration = 0f;
+
+            if (duration >= sampleDuration)
+            {
+                if (displayMode == DisplayMode.FPS)
+                {
+                    display.SetText("FPS\n{0:0}\n{1:0}\n{2:0}", 1f / bestDuration, frames / duration, 1f / worstDuration);
+                }
+                else
+                {
+                    display.SetText("FPS\n{0:1}\n{1:1}\n{2:1}", 1000f * bestDuration, 1000f * duration / frames, 1000f * worstDuration);
+                }
+                frames = 0;
+                duration = 0f;
+                bestDuration = float.MaxValue;
+                worstDuration = 0f;
+            }
         }
     }
 }
