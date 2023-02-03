@@ -72,13 +72,13 @@ namespace Assets.Scripts.Basics
                 m_duration -= m_functionDuration;
                 m_transitioning = true;
                 m_transitionFunction = m_function;
-                PickNextFunction();
+                NextFunctionPick();
             }
 
-            UpdateFunctionOnGPU();
+            FunctionOnGPUUpdate();
         }
 
-        void UpdateFunctionOnGPU()
+        void FunctionOnGPUUpdate()
         {
             float step = 2f / m_resolution;
             m_computeShader.SetInt(s_resolutionId, m_resolution);
@@ -106,11 +106,11 @@ namespace Assets.Scripts.Basics
             Graphics.DrawMeshInstancedProcedural(m_mesh, 0, m_material, bounds, m_resolution * m_resolution);
         }
 
-        void PickNextFunction()
+        void NextFunctionPick()
         {
             m_function = m_transitionMode == TransitionMode.Cycle ?
-                FunctionLibrary.GetNextFunctionName(m_function) :
-                FunctionLibrary.GetRandomFunctionNameOtherThan(m_function);
+                FunctionLibrary.NextFunctionNameGet(m_function) :
+                FunctionLibrary.RandomFunctionNameOtherThanGet(m_function);
         }
     }
 }
