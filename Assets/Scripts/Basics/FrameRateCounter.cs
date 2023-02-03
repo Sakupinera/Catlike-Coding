@@ -1,17 +1,17 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 
 namespace Assets.Scripts.Basics
 {
     /// <summary>
-    /// Ö¡ÂÊÏÔÊ¾Æ÷
+    /// å¸§ç‡æ˜¾ç¤ºå™¨
     /// </summary>
     public class FrameRateCounter : MonoBehaviour
     {
-        #region ·½·¨
+        #region æ–¹æ³•
 
         /// <summary>
-        /// UI¸üĞÂÂß¼­
+        /// UIæ›´æ–°é€»è¾‘
         /// </summary>
         private void Update()
         {
@@ -48,52 +48,52 @@ namespace Assets.Scripts.Basics
 
         #endregion
 
-        #region ÒÀÀµµÄ×Ö¶Î
+        #region ä¾èµ–çš„å­—æ®µ
 
         /// <summary>
-        /// Text×é¼ş
+        /// Textç»„ä»¶
         /// </summary>
         [SerializeField]
         TextMeshProUGUI m_display;
 
         /// <summary>
-        /// µ±Ç°ÏÔÊ¾·½Ê½
+        /// å½“å‰æ˜¾ç¤ºæ–¹å¼
         /// </summary>
         [SerializeField]
         private DisplayMode m_displayMode = DisplayMode.FPS;
 
         /// <summary>
-        /// ÎÄ±¾¸üĞÂÊ±¼ä
+        /// æ–‡æœ¬æ›´æ–°æ—¶é—´
         /// </summary>
         [SerializeField, Range(0.1f, 2f)]
         private float m_sampleDuration = 1f;
 
         /// <summary>
-        /// Ö¡ÂÊ
+        /// å¸§ç‡
         /// </summary>
         private int m_frames;
 
         /// <summary>
-        /// µ±Ç°Ö¡¼ä¸ôÊ±¼ä
+        /// å½“å‰å¸§é—´éš”æ—¶é—´
         /// </summary>
         private float m_duration;
 
         /// <summary>
-        /// ×î¿ìµÄÖ¡¼ä¸ôÊ±¼ä
+        /// æœ€å¿«çš„å¸§é—´éš”æ—¶é—´
         /// </summary>
         private float m_bestDuration = float.MaxValue;
 
         /// <summary>
-        /// ×îÂıµÄÖ¡¼ä¸ôÊ±¼ä
+        /// æœ€æ…¢çš„å¸§é—´éš”æ—¶é—´
         /// </summary>
         private float m_worstDuration;
 
         #endregion
 
-        #region Ã¶¾Ù
+        #region æšä¸¾
 
         /// <summary>
-        /// Ö¡ÂÊÏÔÊ¾·½Ê½
+        /// å¸§ç‡æ˜¾ç¤ºæ–¹å¼
         /// </summary>
         public enum DisplayMode { FPS, MS }
 
