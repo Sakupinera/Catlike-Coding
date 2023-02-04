@@ -107,6 +107,10 @@ float3 Torus(float u, float v, float t)
     return p;
 }
 
+/**
+ * \brief 通过宏为每个视图函数创建一个单独的内核函数
+ * \param function 函数名
+ */
 #define KERNEL_FUNCTION(function) \
 [numthreads(8, 8, 1)] \
 void function##Kernel(uint3 id : SV_DispatchThreadID) \
@@ -115,6 +119,11 @@ void function##Kernel(uint3 id : SV_DispatchThreadID) \
     SetPosition(id, function(uv.x, uv.y, _Time)); \
 }
 
+/**
+ * \brief 通过宏为每个视图函数变换到另一个视图函数过渡
+ * \param functionA 当前函数名
+ * \param functionB 目标函数名
+ */
 #define KERNEL_MOPH_FUNCTION(functionA, functionB) \
 	[numthreads(8, 8, 1)] \
 	void functionA##To##functionB##Kernel (uint3 id: SV_DispatchThreadID) { \
