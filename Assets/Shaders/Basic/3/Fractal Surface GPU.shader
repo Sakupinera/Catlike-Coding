@@ -1,31 +1,31 @@
-﻿Shader "Fractal/Fractal Surface GPU" {
+﻿Shader "Fractal/Fractal Surface GPU"{
 
-	Properties {
-		_BaseColor ("Base Color", Color) = (1.0, 1.0, 1.0, 1.0)
-		_Smoothness ("Smoothness", Range(0,1)) = 0.5
-	}
-	
-	SubShader {
+	// Properties{
+	// 	// _BaseColor("Base Color",Color) = (1.0,1.0,1.0,1.0)
+	// 	_Smoothness("Smoothness",Range(0,1)) = 0.5
+	// }
+
+	SubShader{
 		CGPROGRAM
-		#pragma surface ConfigureSurface Standard fullforwardshadows addshadow
+		#pragma surface ConfigureSurface Standard fullforwardShadows addshadow
 		#pragma instancing_options assumeuniformscaling procedural:ConfigureProcedural
 		#pragma editor_sync_compilation
-
 		#pragma target 4.5
-		
-		#include "FractalGPU.hlsl"
+
+		#include "/FractalGPU.hlsl"
 
 		struct Input {
 			float3 worldPos;
 		};
 
-		float4 _BaseColor;
-		float _Smoothness;
+		// float4 _BaseColor;
+		// float _Smoothness;
 
-		void ConfigureSurface (Input input, inout SurfaceOutputStandard surface) {
-			surface.Albedo = _BaseColor.rgb;
-			surface.Smoothness = _Smoothness;
+		void ConfigureSurface(Input input,inout SurfaceOutputStandard surface) {
+			surface.Albedo = GetFractalColor().rgb;
+			surface.Smoothness = GetFractalColor().a;
 		}
+
 		ENDCG
 	}
 
