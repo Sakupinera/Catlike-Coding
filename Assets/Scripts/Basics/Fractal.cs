@@ -36,7 +36,7 @@ namespace Assets.Scripts.Basics
                 m_matricesBuffers[i] = new ComputeBuffer(length, stride);
             }
 
-            m_parts[0][0] = CreatePart(0);
+            m_parts[0][0] = PartCreate(0);
             for (int li = 1; li < m_parts.Length; li++)
             {
                 NativeArray<FractalPart> levelParts = m_parts[li];
@@ -44,7 +44,7 @@ namespace Assets.Scripts.Basics
                 {
                     for (int ci = 0; ci < 5; ci++)
                     {
-                        levelParts[fpi + ci] = CreatePart(ci);
+                        levelParts[fpi + ci] = PartCreate(ci);
                     }
                 }
             }
@@ -85,7 +85,7 @@ namespace Assets.Scripts.Basics
         /// </summary>
         /// <param name="childIndex"></param>
         /// <returns></returns>
-        FractalPart CreatePart(int childIndex) => new FractalPart
+        FractalPart PartCreate(int childIndex) => new FractalPart
         {
             m_direction = s_directions[childIndex],
             m_rotation = s_rotations[childIndex]
@@ -329,7 +329,7 @@ namespace Assets.Scripts.Basics
                     new Vector4(Random.value, Random.value, Random.value, Random.value);
             }
 
-            m_parts[0][0] = CreatePart(0);
+            m_parts[0][0] = PartCreate(0);
             for (int li = 1; li < m_parts.Length; li++)
             {
                 NativeArray<FractalPart> levelParts = m_parts[li];
@@ -337,7 +337,7 @@ namespace Assets.Scripts.Basics
                 {
                     for (int ci = 0; ci < 5; ci++)
                     {
-                        levelParts[fpi + ci] = CreatePart(ci);
+                        levelParts[fpi + ci] = PartCreate(ci);
                     }
                 }
             }
@@ -379,7 +379,7 @@ namespace Assets.Scripts.Basics
         /// </summary>
         /// <param name="childIndex"></param>
         /// <returns></returns>
-        FractalPart CreatePart(int childIndex) => new FractalPart
+        FractalPart PartCreate(int childIndex) => new FractalPart
         {
             m_maxSagAngle = radians(Random.Range(m_maxSagAngleA, m_maxSagAngleB)),
             m_rotation = s_rotations[childIndex],
