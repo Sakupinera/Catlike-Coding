@@ -1,5 +1,4 @@
 #define CustomGravity
-using Assets.Scripts.Movement;
 using UnityEngine;
 
 #if CustomGravity

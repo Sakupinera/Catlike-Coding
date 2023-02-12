@@ -108,4 +108,5 @@ MonoBehaviour:
   m_alignSmoothRange: 45
   m_obstructionMask:
     serializedVersion: 2
-    m_Bits: 1591
+    m_Bits: 51
+  m_upAlignmentSpeed: 360
