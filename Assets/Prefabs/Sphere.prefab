@@ -113,12 +113,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxSpeed: 10
-  m_maxAcceleration: 100
+  m_maxClimbSpeed: 2
+  m_maxSwimSpeed: 5
+  m_maxAcceleration: 20
   m_maxAirAcceleration: 10
+  m_maxClimbAcceleration: 20
+  m_maxSwimAcceleration: 5
   m_jumpHeight: 2
   m_maxAirJumps: 1
   m_maxGroundAngle: 46
   m_maxStairsAngle: 50
+  m_maxClimbAngle: 140
   m_maxSnapSpeed: 100
   m_probeDistance: 1
   m_probeMask:
@@ -127,7 +132,22 @@ MonoBehaviour:
   m_stairsMask:
     serializedVersion: 2
     m_Bits: 1024
+  m_climbMask:
+    serializedVersion: 2
+    m_Bits: 1331
+  m_waterMask:
+    serializedVersion: 2
+    m_Bits: 16
   m_playerInputSpace: {fileID: 0}
+  m_upAxis: {x: 0, y: 0, z: 0}
+  m_normalMaterial: {fileID: 2100000, guid: 13289d7ac6ebce84f89abacd4e3fe9a6, type: 2}
+  m_climbingMaterial: {fileID: 2100000, guid: 0875771b2749dd547903005f285443a7, type: 2}
+  m_swimmingMaterial: {fileID: 2100000, guid: 1f236688f827e4ce7b5bd6cefb73810d, type: 2}
+  m_submergenceOffset: 0.5
+  m_submergenceRange: 1
+  m_waterDrag: 1
+  m_buoyancy: 1
+  m_swimThreshold: 0.5
 --- !u!96 &3333786569284868767
 TrailRenderer:
   serializedVersion: 2
