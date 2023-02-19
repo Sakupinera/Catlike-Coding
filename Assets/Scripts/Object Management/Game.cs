@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Object_Management
 {
@@ -26,7 +27,11 @@ namespace Assets.Scripts.Object_Management
         {
             if (Input.GetKeyDown(m_createKey))
             {
-                CreateObject();
+                CreateShape();
+            }
+            else if (Input.GetKeyDown(m_destroyKey))
+            {
+                DestroyShape();
             }
             else if (Input.GetKey(m_newGameKey))
             {
@@ -41,12 +46,27 @@ namespace Assets.Scripts.Object_Management
                 BeginNewGame();
                 m_storage.Load(this);
             }
+
+            // 当进度达到1时，创建新的游戏对象
+            m_creationProgress += Time.deltaTime * CreationSpeed;
+            while (m_creationProgress >= 1f)
+            {
+                m_creationProgress -= 1f;
+                CreateShape();
+            }
+
+            m_destructionProgress += Time.deltaTime * DestructionSpeed;
+            while (m_destructionProgress >= 1f)
+            {
+                m_destructionProgress -= 1f;
+                DestroyShape();
+            }
         }
 
         /// <summary>
         /// 创建游戏对象
         /// </summary>
-        private void CreateObject()
+        private void CreateShape()
         {
             Shape instance = m_shapeFactory.GetRandom();
             Transform t = instance.transform;
@@ -61,13 +81,29 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
+        /// 销毁游戏对象
+        /// </summary>
+        private void DestroyShape()
+        {
+            if (m_shapes.Count > 0)
+            {
+                int index = Random.Range(0, m_shapes.Count);
+                m_shapeFactory.Reclaim(m_shapes[index]);
+                // 提升数组性能
+                int lastIndex = m_shapes.Count - 1;
+                m_shapes[index] = m_shapes[lastIndex];
+                m_shapes.RemoveAt(lastIndex);
+            }
+        }
+
+        /// <summary>
         /// 开始新的游戏
         /// </summary>
         private void BeginNewGame()
         {
             foreach (var t in m_shapes)
             {
-                Destroy(t.gameObject);
+                m_shapeFactory.Reclaim(t);
             }
             m_shapes.Clear();
         }
@@ -111,6 +147,20 @@ namespace Assets.Scripts.Object_Management
 
         #endregion
 
+        #region 属性
+
+        /// <summary>
+        /// 创建游戏对象的速度
+        /// </summary>
+        public float CreationSpeed { get; set; }
+
+        /// <summary>
+        /// 销毁游戏对象的速度
+        /// </summary>
+        public float DestructionSpeed { get; set; }
+
+        #endregion
+
         #region 依赖的字段
 
         /// <summary>
@@ -127,6 +177,11 @@ namespace Assets.Scripts.Object_Management
         /// 创建游戏对象的输入
         /// </summary>
         public KeyCode m_createKey = KeyCode.C;
+
+        /// <summary>
+        /// 销毁游戏对象的输入
+        /// </summary>
+        public KeyCode m_destroyKey = KeyCode.X;
 
         /// <summary>
         /// 开始新游戏的输入
@@ -147,6 +202,16 @@ namespace Assets.Scripts.Object_Management
         /// 游戏对象列表
         /// </summary>
         private List<Shape> m_shapes;
+
+        /// <summary>
+        /// 创建新的游戏对象的进度
+        /// </summary>
+        private float m_creationProgress;
+
+        /// <summary>
+        /// 销毁游戏对象的进度
+        /// </summary>
+        private float m_destructionProgress;
 
         #endregion
 

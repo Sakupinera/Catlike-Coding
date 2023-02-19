@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Object Management/3.Reusing Objects.unity
+    guid: 2f8e33b74ef73934c9e81a19d0b088d4
   m_configObjects: {}

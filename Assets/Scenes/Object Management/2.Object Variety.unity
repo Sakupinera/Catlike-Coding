@@ -155,6 +155,7 @@ MonoBehaviour:
   m_shapeFactory: {fileID: 11400000, guid: 16e43fc839725a442ac242d785e697a0, type: 2}
   m_storage: {fileID: 1674380678}
   m_createKey: 99
+  m_destroyKey: 120
   m_newGameKey: 110
   m_saveKey: 115
   m_loadKey: 108
