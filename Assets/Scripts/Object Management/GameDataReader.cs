@@ -14,9 +14,10 @@ namespace Assets.Scripts.Object_Management
         /// 构造方法
         /// </summary>
         /// <param name="reader"></param>
-        public GameDataReader(BinaryReader reader)
+        public GameDataReader(BinaryReader reader, int version)
         {
             this.m_reader = reader;
+            this.Version = version;
         }
 
         /// <summary>
@@ -63,6 +64,29 @@ namespace Assets.Scripts.Object_Management
             value.z = m_reader.ReadSingle();
             return value;
         }
+
+        /// <summary>
+        /// 读取颜色数据
+        /// </summary>
+        /// <returns></returns>
+        public Color ReadColor()
+        {
+            Color value;
+            value.r = m_reader.ReadSingle();
+            value.g = m_reader.ReadSingle();
+            value.b = m_reader.ReadSingle();
+            value.a = m_reader.ReadSingle();
+            return value;
+        }
+
+        #endregion
+
+        #region 属性
+
+        /// <summary>
+        /// 获取存档版本号
+        /// </summary>
+        public int Version { get; }
 
         #endregion
 

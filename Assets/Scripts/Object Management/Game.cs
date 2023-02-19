@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 namespace Assets.Scripts.Object_Management
@@ -15,7 +16,7 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void Awake()
         {
-            m_objects = new List<PersistableObject>();
+            m_shapes = new List<Shape>();
         }
 
         /// <summary>
@@ -33,7 +34,7 @@ namespace Assets.Scripts.Object_Management
             }
             else if (Input.GetKeyDown(m_saveKey))
             {
-                m_storage.Save(this);
+                m_storage.Save(this, SaveVersion);
             }
             else if (Input.GetKeyDown(m_loadKey))
             {
@@ -47,12 +48,16 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void CreateObject()
         {
-            PersistableObject o = Instantiate(m_prefab);
-            Transform t = o.transform;
+            Shape instance = m_shapeFactory.GetRandom();
+            Transform t = instance.transform;
             t.localPosition = Random.insideUnitSphere * 5f;
             t.localRotation = Random.rotation;
             t.localScale = Vector3.one * Random.Range(0.1f, 1f);
-            m_objects.Add(o);
+            instance.SetColor(Random.ColorHSV(hueMin: 0f, hueMax: 1f,
+                saturationMin: 0.5f, saturationMax: 1f,
+                valueMin: 0.25f, valueMax: 1f,
+                alphaMin: 1f, alphaMax: 1f));
+            m_shapes.Add(instance);
         }
 
         /// <summary>
@@ -60,11 +65,11 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void BeginNewGame()
         {
-            foreach (var t in m_objects)
+            foreach (var t in m_shapes)
             {
                 Destroy(t.gameObject);
             }
-            m_objects.Clear();
+            m_shapes.Clear();
         }
 
         /// <summary>
@@ -73,9 +78,11 @@ namespace Assets.Scripts.Object_Management
         /// <param name="writer"></param>
         public override void Save(GameDataWriter writer)
         {
-            writer.Write(m_objects.Count);
-            foreach (var t in m_objects)
+            writer.Write(m_shapes.Count);
+            foreach (var t in m_shapes)
             {
+                writer.Write(t.ShapeId);
+                writer.Write(t.MaterialId);
                 t.Save(writer);
             }
         }
@@ -86,12 +93,19 @@ namespace Assets.Scripts.Object_Management
         /// <param name="reader"></param>
         public override void Load(GameDataReader reader)
         {
-            int count = reader.ReadInt();
+            int version = reader.Version;
+            if (version > SaveVersion)
+            {
+                Debug.LogError("Unsupported future save version " + version);
+            }
+            int count = version <= 0 ? -version : reader.ReadInt();
             for (int i = 0; i < count; i++)
             {
-                PersistableObject o = Instantiate(m_prefab);
-                o.Load(reader);
-                m_objects.Add(o);
+                int shapeId = version > 0 ? reader.ReadInt() : 0;
+                int materialId = version > 0 ? reader.ReadInt() : 0;
+                Shape instance = m_shapeFactory.Get(shapeId, materialId);
+                instance.Load(reader);
+                m_shapes.Add(instance);
             }
         }
 
@@ -100,9 +114,9 @@ namespace Assets.Scripts.Object_Management
         #region 依赖的字段
 
         /// <summary>
-        /// 预制体
+        /// 预制体工厂
         /// </summary>
-        public PersistableObject m_prefab;
+        public ShapeFactory m_shapeFactory;
 
         /// <summary>
         /// 持久化存储
@@ -132,7 +146,16 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 游戏对象列表
         /// </summary>
-        private List<PersistableObject> m_objects;
+        private List<Shape> m_shapes;
+
+        #endregion
+
+        #region 常量
+
+        /// <summary>
+        /// 存档版本
+        /// </summary>
+        private const int SaveVersion = 1;
 
         #endregion
     }

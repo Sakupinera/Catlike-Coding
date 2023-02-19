@@ -22,9 +22,10 @@ namespace Assets.Scripts.Object_Management
         /// 存档
         /// </summary>
         /// <param name="o"></param>
-        public void Save(PersistableObject o)
+        public void Save(PersistableObject o, int version)
         {
             using var writer = new BinaryWriter(File.Open(m_savePath, FileMode.Create));
+            writer.Write(-version);
             o.Save(new GameDataWriter(writer));
         }
 
@@ -35,7 +36,7 @@ namespace Assets.Scripts.Object_Management
         public void Load(PersistableObject o)
         {
             using var reader = new BinaryReader(File.Open(m_savePath, FileMode.Open));
-            o.Load(new GameDataReader(reader));
+            o.Load(new GameDataReader(reader, -reader.ReadInt32()));
         }
 
         #endregion

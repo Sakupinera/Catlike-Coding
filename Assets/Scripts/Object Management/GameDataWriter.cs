@@ -60,6 +60,18 @@ namespace Assets.Scripts.Object_Management
             m_writer.Write(value.z);
         }
 
+        /// <summary>
+        /// 写入颜色数据
+        /// </summary>
+        /// <param name="value"></param>
+        public void Write(Color value)
+        {
+            m_writer.Write(value.r);
+            m_writer.Write(value.g);
+            m_writer.Write(value.b);
+            m_writer.Write(value.a);
+        }
+
         #endregion
 
         #region 依赖的字段
