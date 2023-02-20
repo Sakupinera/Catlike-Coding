@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 namespace Assets.Scripts.Object_Management
@@ -39,6 +40,7 @@ namespace Assets.Scripts.Object_Management
                 {
                     instance = Instantiate(m_prefabs[shapeId]);
                     instance.ShapeId = shapeId;
+                    SceneManager.MoveGameObjectToScene(instance.gameObject, m_poolScene);
                 }
             }
             else
@@ -92,6 +94,27 @@ namespace Assets.Scripts.Object_Management
             {
                 m_pools[i] = new List<Shape>();
             }
+
+            // 在编辑器模式下重新编译时，重新获取场景
+            if (Application.isEditor)
+            {
+                m_poolScene = SceneManager.GetSceneByName(name);
+                if (m_poolScene.isLoaded)
+                {
+                    GameObject[] rootObjects = m_poolScene.GetRootGameObjects();
+                    for (int i = 0; i < rootObjects.Length; i++)
+                    {
+                        Shape pooledShape = rootObjects[i].GetComponent<Shape>();
+                        if (!pooledShape.gameObject.activeSelf)
+                        {
+                            m_pools[pooledShape.ShapeId].Add(pooledShape);
+                        }
+                    }
+                    return;
+                }
+            }
+
+            m_poolScene = SceneManager.CreateScene(name);
         }
 
         #endregion
@@ -120,6 +143,11 @@ namespace Assets.Scripts.Object_Management
         /// 对象池
         /// </summary>
         private List<Shape>[] m_pools;
+
+        /// <summary>
+        /// 存放对象池对象的场景
+        /// </summary>
+        private Scene m_poolScene;
 
         #endregion
     }

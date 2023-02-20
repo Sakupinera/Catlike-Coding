@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Object_Management
@@ -15,9 +17,25 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 初始化
         /// </summary>
-        private void Awake()
+        private void Start()
         {
             m_shapes = new List<Shape>();
+
+            if (Application.isEditor)
+            {
+                for (int i = 0; i < SceneManager.sceneCount; i++)
+                {
+                    Scene loadedScene = SceneManager.GetSceneAt(i);
+                    if (loadedScene.name.Contains("Level "))
+                    {
+                        SceneManager.SetActiveScene(loadedScene);
+                        m_loadedLevelBuildIndex = loadedScene.buildIndex;
+                        return;
+                    }
+                }
+            }
+
+            StartCoroutine(LoadLevel(1));
         }
 
         /// <summary>
@@ -45,6 +63,18 @@ namespace Assets.Scripts.Object_Management
             {
                 BeginNewGame();
                 m_storage.Load(this);
+            }
+            else
+            {
+                for (int i = 1; i <= m_levelCount; i++)
+                {
+                    if (Input.GetKeyDown(KeyCode.Alpha0 + i))
+                    {
+                        BeginNewGame();
+                        StartCoroutine(LoadLevel(i));
+                        return;
+                    }
+                }
             }
 
             // 当进度达到1时，创建新的游戏对象
@@ -115,6 +145,7 @@ namespace Assets.Scripts.Object_Management
         public override void Save(GameDataWriter writer)
         {
             writer.Write(m_shapes.Count);
+            writer.Write(m_loadedLevelBuildIndex);
             foreach (var t in m_shapes)
             {
                 writer.Write(t.ShapeId);
@@ -135,6 +166,7 @@ namespace Assets.Scripts.Object_Management
                 Debug.LogError("Unsupported future save version " + version);
             }
             int count = version <= 0 ? -version : reader.ReadInt();
+            StartCoroutine(LoadLevel(version < 2 ? 1 : reader.ReadInt()));
             for (int i = 0; i < count; i++)
             {
                 int shapeId = version > 0 ? reader.ReadInt() : 0;
@@ -143,6 +175,22 @@ namespace Assets.Scripts.Object_Management
                 instance.Load(reader);
                 m_shapes.Add(instance);
             }
+        }
+
+        /// <summary>
+        /// 加载场景
+        /// </summary>
+        private IEnumerator LoadLevel(int levelBuildIndex)
+        {
+            enabled = false;
+            if (m_loadedLevelBuildIndex > 0)
+            {
+                yield return SceneManager.UnloadSceneAsync(m_loadedLevelBuildIndex);
+            }
+            yield return SceneManager.LoadSceneAsync(levelBuildIndex , LoadSceneMode.Additive);
+            SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelBuildIndex));
+            m_loadedLevelBuildIndex = levelBuildIndex;
+            enabled = true;
         }
 
         #endregion
@@ -199,6 +247,11 @@ namespace Assets.Scripts.Object_Management
         public KeyCode m_loadKey = KeyCode.L;
 
         /// <summary>
+        /// 关卡数
+        /// </summary>
+        public int m_levelCount;
+
+        /// <summary>
         /// 游戏对象列表
         /// </summary>
         private List<Shape> m_shapes;
@@ -213,6 +266,11 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private float m_destructionProgress;
 
+        /// <summary>
+        /// 当前加载的关卡场景下标
+        /// </summary>
+        private int m_loadedLevelBuildIndex;
+
         #endregion
 
         #region 常量
@@ -220,7 +278,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 存档版本
         /// </summary>
-        private const int SaveVersion = 1;
+        private const int SaveVersion = 2;
 
         #endregion
     }
