@@ -19,6 +19,8 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void Start()
         {
+            Instance = this;
+
             m_shapes = new List<Shape>();
 
             if (Application.isEditor)
@@ -94,13 +96,21 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
+        /// 当组件重新被激活时，重新赋值
+        /// </summary>
+        private void OnEnable()
+        {
+            Instance = this;
+        }
+
+        /// <summary>
         /// 创建游戏对象
         /// </summary>
         private void CreateShape()
         {
             Shape instance = m_shapeFactory.GetRandom();
             Transform t = instance.transform;
-            t.localPosition = Random.insideUnitSphere * 5f;
+            t.localPosition = SpawnZoneOfLevel.SpawnPoint;
             t.localRotation = Random.rotation;
             t.localScale = Vector3.one * Random.Range(0.1f, 1f);
             instance.SetColor(Random.ColorHSV(hueMin: 0f, hueMax: 1f,
@@ -207,6 +217,16 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         public float DestructionSpeed { get; set; }
 
+        /// <summary>
+        /// 游戏对象生成区域
+        /// </summary>
+        public SpawnZone SpawnZoneOfLevel { get; set; }
+
+        /// <summary>
+        /// 游戏单例
+        /// </summary>
+        public static Game Instance { get; private set; }
+
         #endregion
 
         #region 依赖的字段
@@ -214,42 +234,50 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 预制体工厂
         /// </summary>
-        public ShapeFactory m_shapeFactory;
+        [SerializeField]
+        private ShapeFactory m_shapeFactory;
 
         /// <summary>
         /// 持久化存储
         /// </summary>
-        public PersistentStorage m_storage;
+        [SerializeField]
+        private PersistentStorage m_storage;
 
         /// <summary>
         /// 创建游戏对象的输入
         /// </summary>
-        public KeyCode m_createKey = KeyCode.C;
+        [SerializeField]
+        private KeyCode m_createKey = KeyCode.C;
 
         /// <summary>
         /// 销毁游戏对象的输入
         /// </summary>
-        public KeyCode m_destroyKey = KeyCode.X;
+        [SerializeField]
+        private KeyCode m_destroyKey = KeyCode.X;
 
         /// <summary>
         /// 开始新游戏的输入
         /// </summary>
-        public KeyCode m_newGameKey = KeyCode.N;
+        [SerializeField]
+        private KeyCode m_newGameKey = KeyCode.N;
 
         /// <summary>
         /// 保存游戏的输入
         /// </summary>
-        public KeyCode m_saveKey = KeyCode.S;
+        [SerializeField]
+        private KeyCode m_saveKey = KeyCode.S;
 
         /// <summary>
         /// 读取游戏的输入
         /// </summary>
-        public KeyCode m_loadKey = KeyCode.L;
+        [SerializeField]
+        private KeyCode m_loadKey = KeyCode.L;
 
         /// <summary>
         /// 关卡数
         /// </summary>
-        public int m_levelCount;
+        [SerializeField]
+        private int m_levelCount;
 
         /// <summary>
         /// 游戏对象列表
