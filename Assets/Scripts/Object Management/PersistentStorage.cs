@@ -35,7 +35,8 @@ namespace Assets.Scripts.Object_Management
         /// <param name="o"></param>
         public void Load(PersistableObject o)
         {
-            using var reader = new BinaryReader(File.Open(m_savePath, FileMode.Open));
+            byte[] data = File.ReadAllBytes(m_savePath);
+            var reader = new BinaryReader(new MemoryStream(data));
             o.Load(new GameDataReader(reader, -reader.ReadInt32()));
         }
 

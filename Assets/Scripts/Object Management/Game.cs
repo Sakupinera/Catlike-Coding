@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Object_Management
@@ -10,6 +11,7 @@ namespace Assets.Scripts.Object_Management
     /// <summary>
     /// 游戏
     /// </summary>
+    [DisallowMultipleComponent]
     public class Game : PersistableObject
     {
         #region 方法
@@ -19,7 +21,7 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void Start()
         {
-            Instance = this;
+            m_mainRandomState = Random.state;
 
             m_shapes = new List<Shape>();
 
@@ -37,6 +39,7 @@ namespace Assets.Scripts.Object_Management
                 }
             }
 
+            BeginNewGame();
             StartCoroutine(LoadLevel(1));
         }
 
@@ -56,6 +59,7 @@ namespace Assets.Scripts.Object_Management
             else if (Input.GetKey(m_newGameKey))
             {
                 BeginNewGame();
+                StartCoroutine(LoadLevel(m_loadedLevelBuildIndex));
             }
             else if (Input.GetKeyDown(m_saveKey))
             {
@@ -78,7 +82,13 @@ namespace Assets.Scripts.Object_Management
                     }
                 }
             }
+        }
 
+        /// <summary>
+        /// 固定创建新的游戏对象的时间步长
+        /// </summary>
+        private void FixedUpdate()
+        {
             // 当进度达到1时，创建新的游戏对象
             m_creationProgress += Time.deltaTime * CreationSpeed;
             while (m_creationProgress >= 1f)
@@ -96,21 +106,13 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
-        /// 当组件重新被激活时，重新赋值
-        /// </summary>
-        private void OnEnable()
-        {
-            Instance = this;
-        }
-
-        /// <summary>
         /// 创建游戏对象
         /// </summary>
         private void CreateShape()
         {
             Shape instance = m_shapeFactory.GetRandom();
             Transform t = instance.transform;
-            t.localPosition = SpawnZoneOfLevel.SpawnPoint;
+            t.localPosition = GameLevel.Current.SpawnPoint;
             t.localRotation = Random.rotation;
             t.localScale = Vector3.one * Random.Range(0.1f, 1f);
             instance.SetColor(Random.ColorHSV(hueMin: 0f, hueMax: 1f,
@@ -141,6 +143,14 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void BeginNewGame()
         {
+            Random.state = m_mainRandomState;
+            int seed = Random.Range(0, int.MaxValue) ^ (int)Time.unscaledTime;
+            m_mainRandomState = Random.state;
+            Random.InitState(seed);
+
+            m_creationSpeedSlider.value = CreationSpeed = 0;
+            m_destructionSpeedSlider.value = DestructionSpeed = 0;
+
             foreach (var t in m_shapes)
             {
                 m_shapeFactory.Reclaim(t);
@@ -155,7 +165,13 @@ namespace Assets.Scripts.Object_Management
         public override void Save(GameDataWriter writer)
         {
             writer.Write(m_shapes.Count);
+            writer.Write(Random.state);
+            writer.Write(CreationSpeed);
+            writer.Write(m_creationProgress);
+            writer.Write(DestructionSpeed);
+            writer.Write(m_destructionProgress);
             writer.Write(m_loadedLevelBuildIndex);
+            GameLevel.Current.Save(writer);
             foreach (var t in m_shapes)
             {
                 writer.Write(t.ShapeId);
@@ -175,8 +191,40 @@ namespace Assets.Scripts.Object_Management
             {
                 Debug.LogError("Unsupported future save version " + version);
             }
+
+            StartCoroutine(LoadGame(reader));
+        }
+
+        /// <summary>
+        /// 加载游戏
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private IEnumerator LoadGame(GameDataReader reader)
+        {
+            int version = reader.Version;
             int count = version <= 0 ? -version : reader.ReadInt();
-            StartCoroutine(LoadLevel(version < 2 ? 1 : reader.ReadInt()));
+
+            if (version >= 3)
+            {
+                // 判断是否要更换随机数种子
+                Random.State state = reader.ReadRandomState();
+                if (!m_reseedOnLoad)
+                {
+                    Random.state = state;
+                }
+
+                m_creationSpeedSlider.value = CreationSpeed = reader.ReadFloat();
+                m_creationProgress = reader.ReadFloat();
+                m_destructionSpeedSlider.value = DestructionSpeed = reader.ReadFloat();
+                m_destructionProgress = reader.ReadFloat();
+            }
+
+            yield return LoadLevel(version < 2 ? 1 : reader.ReadInt());
+            if (version >= 3)
+            {
+                GameLevel.Current.Load(reader);
+            }
             for (int i = 0; i < count; i++)
             {
                 int shapeId = version > 0 ? reader.ReadInt() : 0;
@@ -216,16 +264,6 @@ namespace Assets.Scripts.Object_Management
         /// 销毁游戏对象的速度
         /// </summary>
         public float DestructionSpeed { get; set; }
-
-        /// <summary>
-        /// 游戏对象生成区域
-        /// </summary>
-        public SpawnZone SpawnZoneOfLevel { get; set; }
-
-        /// <summary>
-        /// 游戏单例
-        /// </summary>
-        public static Game Instance { get; private set; }
 
         #endregion
 
@@ -280,6 +318,24 @@ namespace Assets.Scripts.Object_Management
         private int m_levelCount;
 
         /// <summary>
+        /// 加载游戏时是否更换随机数种子
+        /// </summary>
+        [SerializeField]
+        private bool m_reseedOnLoad;
+
+        /// <summary>
+        /// 创建速度滑动条
+        /// </summary>
+        [SerializeField]
+        private Slider m_creationSpeedSlider;
+
+        /// <summary>
+        /// 销毁速度滑动条
+        /// </summary>
+        [SerializeField]
+        private Slider m_destructionSpeedSlider;
+
+        /// <summary>
         /// 游戏对象列表
         /// </summary>
         private List<Shape> m_shapes;
@@ -299,6 +355,11 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private int m_loadedLevelBuildIndex;
 
+        /// <summary>
+        /// 随机状态
+        /// </summary>
+        private Random.State m_mainRandomState;
+
         #endregion
 
         #region 常量
@@ -306,7 +367,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 存档版本
         /// </summary>
-        private const int SaveVersion = 2;
+        private const int SaveVersion = 3;
 
         #endregion
     }

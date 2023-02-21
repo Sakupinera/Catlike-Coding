@@ -79,6 +79,15 @@ namespace Assets.Scripts.Object_Management
             return value;
         }
 
+        /// <summary>
+        /// 读取随机数状态
+        /// </summary>
+        /// <returns></returns>
+        public Random.State ReadRandomState()
+        {
+            return JsonUtility.FromJson<Random.State>(m_reader.ReadString());
+        }
+
         #endregion
 
         #region 属性

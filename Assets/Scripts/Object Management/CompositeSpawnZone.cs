@@ -16,9 +16,39 @@ namespace Assets.Scripts.Object_Management
         {
             get
             {
-                int index = Random.Range(0, m_spawnZones.Length);
+                int index;
+                if (m_sequential)
+                {
+                    index = m_nextSequentialIndex++;
+                    if (m_nextSequentialIndex >= m_spawnZones.Length)
+                    {
+                        m_nextSequentialIndex = 0;
+                    }
+                }
+                else
+                {
+                    index = Random.Range(0, m_spawnZones.Length);
+                }
                 return m_spawnZones[index].SpawnPoint;
             }
+        }
+
+        /// <summary>
+        /// 存档
+        /// </summary>
+        /// <param name="writer"></param>
+        public override void Save(GameDataWriter writer)
+        {
+            writer.Write(m_nextSequentialIndex);
+        }
+
+        /// <summary>
+        /// 读档
+        /// </summary>
+        /// <param name="reader"></param>
+        public override void Load(GameDataReader reader)
+        {
+            m_nextSequentialIndex = reader.ReadInt();
         }
 
         #endregion
@@ -30,6 +60,17 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         [SerializeField]
         private SpawnZone[] m_spawnZones;
+
+        /// <summary>
+        /// 是否按顺序生成
+        /// </summary>
+        [SerializeField]
+        private bool m_sequential;
+
+        /// <summary>
+        /// 下一个序列下标
+        /// </summary>
+        private int m_nextSequentialIndex;
 
         #endregion
     }

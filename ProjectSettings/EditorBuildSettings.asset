@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Object Management/5.Spawn Zones.unity
-    guid: 0f42e05d9525fd4448741e58b195c574
+    path: Assets/Scenes/Object Management/6.More Game State.unity
+    guid: d1d86442ce1a92d41b888af14587515e
   - enabled: 1
     path: Assets/Scenes/Object Management/Level 1.unity
     guid: bd8d6d9a668837c43927ba7aede09515
@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Object Management/Level 3.unity
     guid: 7130bac2fc284a24e9884bf0e170be9d
+  - enabled: 1
+    path: Assets/Scenes/Object Management/Level 4.unity
+    guid: ce9b46d477ad0ad45a91b2e13d62ffb5
   m_configObjects: {}

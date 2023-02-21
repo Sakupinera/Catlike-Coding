@@ -72,6 +72,15 @@ namespace Assets.Scripts.Object_Management
             m_writer.Write(value.a);
         }
 
+        /// <summary>
+        /// 写入随机数的状态
+        /// </summary>
+        /// <param name="value"></param>
+        public void Write(Random.State value)
+        {
+            m_writer.Write(JsonUtility.ToJson(value));
+        }
+
         #endregion
 
         #region 依赖的字段
