@@ -89,6 +89,12 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void FixedUpdate()
         {
+            // 更新每个形状单独的逻辑
+            for (int i = 0; i < m_shapes.Count; i++)
+            {
+                m_shapes[i].GameUpdate();
+            }
+
             // 当进度达到1时，创建新的游戏对象
             m_creationProgress += Time.deltaTime * CreationSpeed;
             while (m_creationProgress >= 1f)
@@ -111,14 +117,7 @@ namespace Assets.Scripts.Object_Management
         private void CreateShape()
         {
             Shape instance = m_shapeFactory.GetRandom();
-            Transform t = instance.transform;
-            t.localPosition = GameLevel.Current.SpawnPoint;
-            t.localRotation = Random.rotation;
-            t.localScale = Vector3.one * Random.Range(0.1f, 1f);
-            instance.SetColor(Random.ColorHSV(hueMin: 0f, hueMax: 1f,
-                saturationMin: 0.5f, saturationMax: 1f,
-                valueMin: 0.25f, valueMax: 1f,
-                alphaMin: 1f, alphaMax: 1f));
+            GameLevel.Current.ConfigureSpawn(instance);
             m_shapes.Add(instance);
         }
 
@@ -367,7 +366,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 存档版本
         /// </summary>
-        private const int SaveVersion = 3;
+        private const int SaveVersion = 4;
 
         #endregion
     }

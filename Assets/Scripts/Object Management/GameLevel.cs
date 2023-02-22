@@ -22,6 +22,15 @@ namespace Assets.Scripts.Object_Management
             }
         }
 
+        /// <summary>
+        /// 生成游戏对象
+        /// </summary>
+        /// <param name="shape"></param>
+        public void ConfigureSpawn(Shape shape)
+        {
+            m_spawnZone.ConfigureSpawn(shape);
+        }
+
         #endregion
 
         #region 属性
@@ -30,17 +39,6 @@ namespace Assets.Scripts.Object_Management
         /// 游戏关卡
         /// </summary>
         public static GameLevel Current { get; private set; }
-
-        /// <summary>
-        /// 生成点
-        /// </summary>
-        public Vector3 SpawnPoint
-        {
-            get
-            {
-                return m_spawnZone.SpawnPoint;
-            }
-        }
 
         /// <summary>
         /// 存档

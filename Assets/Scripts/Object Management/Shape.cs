@@ -18,6 +18,15 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
+        /// 游戏逻辑更新
+        /// </summary>
+        public void GameUpdate()
+        {
+            transform.Rotate(AngularVelocity * Time.deltaTime);
+            transform.localPosition += Velocity * Time.deltaTime;
+        }
+
+        /// <summary>
         /// 设置材质
         /// </summary>
         /// <param name="material"></param>
@@ -52,6 +61,8 @@ namespace Assets.Scripts.Object_Management
         {
             base.Save(writer);
             writer.Write(m_color);
+            writer.Write(AngularVelocity);
+            writer.Write(Velocity);
         }
 
         /// <summary>
@@ -62,6 +73,8 @@ namespace Assets.Scripts.Object_Management
         {
             base.Load(reader);
             SetColor(reader.Version > 0 ? reader.ReadColor() : Color.white);
+            AngularVelocity = reader.Version >= 4 ? reader.ReadVector3() : Vector3.zero;
+            Velocity = reader.Version >=4 ? reader.ReadVector3() : Vector3.zero;
         }
 
         #endregion
@@ -92,6 +105,16 @@ namespace Assets.Scripts.Object_Management
         /// 材质Id
         /// </summary>
         public int MaterialId { get; private set; }
+
+        /// <summary>
+        /// 角速度
+        /// </summary>
+        public Vector3 AngularVelocity { get; set; }
+
+        /// <summary>
+        /// 速度
+        /// </summary>
+        public Vector3 Velocity { get; set; }
 
         #endregion
 

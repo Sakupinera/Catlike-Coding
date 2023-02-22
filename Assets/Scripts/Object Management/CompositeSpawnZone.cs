@@ -51,6 +51,35 @@ namespace Assets.Scripts.Object_Management
             m_nextSequentialIndex = reader.ReadInt();
         }
 
+        /// <summary>
+        /// 生成游戏对象
+        /// </summary>
+        /// <param name="shape"></param>
+        public override void ConfigureSpawn(Shape shape)
+        {
+            if (m_overrideConfig)
+            {
+                base.ConfigureSpawn(shape);
+            }
+            else
+            {
+                int index;
+                if (m_sequential)
+                {
+                    index = m_nextSequentialIndex++;
+                    if (m_nextSequentialIndex >= m_spawnZones.Length)
+                    {
+                        m_nextSequentialIndex = 0;
+                    }
+                }
+                else
+                {
+                    index = Random.Range(0, m_spawnZones.Length);
+                }
+                m_spawnZones[index].ConfigureSpawn(shape);
+            }
+        }
+
         #endregion
 
         #region 依赖的字段
@@ -66,6 +95,12 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         [SerializeField]
         private bool m_sequential;
+
+        /// <summary>
+        /// 是否重写配置
+        /// </summary>
+        [SerializeField]
+        private bool m_overrideConfig;
 
         /// <summary>
         /// 下一个序列下标

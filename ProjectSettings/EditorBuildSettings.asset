@@ -6,8 +6,8 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Object Management/6.More Game State.unity
-    guid: d1d86442ce1a92d41b888af14587515e
+    path: Assets/Scenes/Object Management/7.Configuring Shapes.unity
+    guid: 871ee9fe73f3a1e46a2bb1701c5feba5
   - enabled: 1
     path: Assets/Scenes/Object Management/Level 1.unity
     guid: bd8d6d9a668837c43927ba7aede09515
