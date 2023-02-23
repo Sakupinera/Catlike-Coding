@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Object_Management
 {
@@ -39,6 +41,7 @@ namespace Assets.Scripts.Object_Management
                 else
                 {
                     instance = Instantiate(m_prefabs[shapeId]);
+                    instance.OriginFactory = this;
                     instance.ShapeId = shapeId;
                     SceneManager.MoveGameObjectToScene(instance.gameObject, m_poolScene);
                 }
@@ -68,6 +71,11 @@ namespace Assets.Scripts.Object_Management
         /// <param name="shapeToRecycle"></param>
         public void Reclaim(Shape shapeToRecycle)
         {
+            if (shapeToRecycle.OriginFactory != this)
+            {
+                Debug.LogError("Tried to reclaim shape with wrong factory");
+            }
+
             if (m_recycle)
             {
                 if (m_pools == null)
@@ -119,6 +127,29 @@ namespace Assets.Scripts.Object_Management
 
         #endregion
 
+        #region 属性
+
+        /// <summary>
+        /// 工厂Id
+        /// </summary>
+        public int FactoryId
+        {
+            get { return m_factoryId; }
+            set
+            {
+                if (m_factoryId == int.MinValue && value != int.MinValue)
+                {
+                    m_factoryId = value;
+                }
+                else
+                {
+                    Debug.Log("Not allowed to change factoryId.");
+                }
+            }
+        }
+
+        #endregion
+
         #region 依赖的字段
 
         /// <summary>
@@ -148,6 +179,12 @@ namespace Assets.Scripts.Object_Management
         /// 存放对象池对象的场景
         /// </summary>
         private Scene m_poolScene;
+
+        /// <summary>
+        /// 工厂Id
+        /// </summary>
+        [NonSerialized]
+        private int m_factoryId = int.MinValue;
 
         #endregion
     }

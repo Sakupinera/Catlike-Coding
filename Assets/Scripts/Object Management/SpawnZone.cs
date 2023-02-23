@@ -14,14 +14,27 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 生成游戏对象
         /// </summary>
-        /// <param name="shape"></param>
-        public virtual void ConfigureSpawn(Shape shape)
+        /// <returns></returns>
+        public virtual Shape SpawnShape()
         {
+            int factoryIndex = Random.Range(0, m_spawnConfig.m_factories.Length);
+            Shape shape = m_spawnConfig.m_factories[factoryIndex].GetRandom();
+
             Transform t = shape.transform;
             t.localPosition = SpawnPoint;
             t.localRotation = Random.rotation;
             t.localScale = Vector3.one * m_spawnConfig.m_scale.RandomValueInRange;
-            shape.SetColor(m_spawnConfig.m_color.RandomInRange);
+            if (m_spawnConfig.m_uniformColor)
+            {
+                shape.SetColor(m_spawnConfig.m_color.RandomInRange);
+            }
+            else
+            {
+                for (int i = 0; i < shape.ColorCount; i++)
+                {
+                    shape.SetColor(m_spawnConfig.m_color.RandomInRange, i);
+                }
+            }
             shape.AngularVelocity = Random.onUnitSphere * m_spawnConfig.m_angularSpeed.RandomValueInRange;
 
             // 判断生成游戏对象的移动方向
@@ -41,8 +54,9 @@ namespace Assets.Scripts.Object_Management
                     direction = transform.forward;
                     break;
             }
-            
+
             shape.Velocity = direction * m_spawnConfig.m_speed.RandomValueInRange;
+            return shape;
         }
 
         #endregion
@@ -75,6 +89,11 @@ namespace Assets.Scripts.Object_Management
         public struct SpawnConfiguration
         {
             /// <summary>
+            /// 形状工厂数组
+            /// </summary>
+            public ShapeFactory[] m_factories;
+
+            /// <summary>
             /// 运动方向
             /// </summary>
             public MovementDirection m_movementDirection;
@@ -98,6 +117,11 @@ namespace Assets.Scripts.Object_Management
             /// HSV颜色范围
             /// </summary>
             public ColorRangeHSV m_color;
+
+            /// <summary>
+            /// 是否统一颜色
+            /// </summary>
+            public bool m_uniformColor;
 
             /// <summary>
             /// 生成游戏对象的运动方向

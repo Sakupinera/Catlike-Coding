@@ -169,6 +169,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnConfig:
+    m_factories:
+    - {fileID: 11400000, guid: 62973aec970e75e429296e1da774a8a8, type: 2}
+    - {fileID: 11400000, guid: 16e43fc839725a442ac242d785e697a0, type: 2}
     m_movementDirection: 3
     m_speed:
       min: 1.5
@@ -189,6 +192,7 @@ MonoBehaviour:
       m_value:
         min: 0.25
         max: 1
+    m_uniformColor: 0
   m_surfaceOnly: 0
 --- !u!1 &599111251
 GameObject:
@@ -329,6 +333,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnConfig:
+    m_factories:
+    - {fileID: 11400000, guid: 62973aec970e75e429296e1da774a8a8, type: 2}
+    - {fileID: 11400000, guid: 62973aec970e75e429296e1da774a8a8, type: 2}
+    - {fileID: 11400000, guid: 16e43fc839725a442ac242d785e697a0, type: 2}
     m_movementDirection: 2
     m_speed:
       min: 1.5
@@ -349,6 +357,7 @@ MonoBehaviour:
       m_value:
         min: 0.25
         max: 1
+    m_uniformColor: 0
   m_spawnZones:
   - {fileID: 1553205020}
   - {fileID: 475698589}
@@ -399,6 +408,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnConfig:
+    m_factories:
+    - {fileID: 11400000, guid: 62973aec970e75e429296e1da774a8a8, type: 2}
+    - {fileID: 11400000, guid: 16e43fc839725a442ac242d785e697a0, type: 2}
     m_movementDirection: 2
     m_speed:
       min: 1.5
@@ -419,6 +431,7 @@ MonoBehaviour:
       m_value:
         min: 0.25
         max: 1
+    m_uniformColor: 0
   m_surfaceOnly: 0
 --- !u!1 &1701879525
 GameObject:

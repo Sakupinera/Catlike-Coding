@@ -55,11 +55,11 @@ namespace Assets.Scripts.Object_Management
         /// 生成游戏对象
         /// </summary>
         /// <param name="shape"></param>
-        public override void ConfigureSpawn(Shape shape)
+        public override Shape SpawnShape()
         {
             if (m_overrideConfig)
             {
-                base.ConfigureSpawn(shape);
+                return base.SpawnShape();
             }
             else
             {
@@ -76,7 +76,7 @@ namespace Assets.Scripts.Object_Management
                 {
                     index = Random.Range(0, m_spawnZones.Length);
                 }
-                m_spawnZones[index].ConfigureSpawn(shape);
+                return m_spawnZones[index].SpawnShape();
             }
         }
 

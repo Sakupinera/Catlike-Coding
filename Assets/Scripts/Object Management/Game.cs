@@ -112,13 +112,26 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
+        /// 当激活组件时，重新赋值
+        /// </summary>
+        private void OnEnable()
+        {
+            // 保证工厂Id只被赋值一次
+            if (m_shapeFactories[0].FactoryId != 0)
+            {
+                for (int i = 0; i < m_shapeFactories.Length; i++)
+                {
+                    m_shapeFactories[i].FactoryId = i;
+                }
+            }
+        }
+
+        /// <summary>
         /// 创建游戏对象
         /// </summary>
         private void CreateShape()
         {
-            Shape instance = m_shapeFactory.GetRandom();
-            GameLevel.Current.ConfigureSpawn(instance);
-            m_shapes.Add(instance);
+            m_shapes.Add(GameLevel.Current.SpawnShape());
         }
 
         /// <summary>
@@ -129,7 +142,7 @@ namespace Assets.Scripts.Object_Management
             if (m_shapes.Count > 0)
             {
                 int index = Random.Range(0, m_shapes.Count);
-                m_shapeFactory.Reclaim(m_shapes[index]);
+                m_shapes[index].Recycle();
                 // 提升数组性能
                 int lastIndex = m_shapes.Count - 1;
                 m_shapes[index] = m_shapes[lastIndex];
@@ -152,7 +165,7 @@ namespace Assets.Scripts.Object_Management
 
             foreach (var t in m_shapes)
             {
-                m_shapeFactory.Reclaim(t);
+                t.Recycle();
             }
             m_shapes.Clear();
         }
@@ -173,6 +186,7 @@ namespace Assets.Scripts.Object_Management
             GameLevel.Current.Save(writer);
             foreach (var t in m_shapes)
             {
+                writer.Write(t.OriginFactory.FactoryId);
                 writer.Write(t.ShapeId);
                 writer.Write(t.MaterialId);
                 t.Save(writer);
@@ -224,11 +238,13 @@ namespace Assets.Scripts.Object_Management
             {
                 GameLevel.Current.Load(reader);
             }
+
             for (int i = 0; i < count; i++)
             {
+                int factoryId = version >= 5 ? reader.ReadInt() : 0;
                 int shapeId = version > 0 ? reader.ReadInt() : 0;
                 int materialId = version > 0 ? reader.ReadInt() : 0;
-                Shape instance = m_shapeFactory.Get(shapeId, materialId);
+                Shape instance = m_shapeFactories[factoryId].Get(shapeId, materialId);
                 instance.Load(reader);
                 m_shapes.Add(instance);
             }
@@ -244,7 +260,7 @@ namespace Assets.Scripts.Object_Management
             {
                 yield return SceneManager.UnloadSceneAsync(m_loadedLevelBuildIndex);
             }
-            yield return SceneManager.LoadSceneAsync(levelBuildIndex , LoadSceneMode.Additive);
+            yield return SceneManager.LoadSceneAsync(levelBuildIndex, LoadSceneMode.Additive);
             SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelBuildIndex));
             m_loadedLevelBuildIndex = levelBuildIndex;
             enabled = true;
@@ -272,7 +288,7 @@ namespace Assets.Scripts.Object_Management
         /// 预制体工厂
         /// </summary>
         [SerializeField]
-        private ShapeFactory m_shapeFactory;
+        private ShapeFactory[] m_shapeFactories;
 
         /// <summary>
         /// 持久化存储
@@ -366,7 +382,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 存档版本
         /// </summary>
-        private const int SaveVersion = 4;
+        private const int SaveVersion = 5;
 
         #endregion
     }

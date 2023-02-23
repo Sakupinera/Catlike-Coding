@@ -26,9 +26,9 @@ namespace Assets.Scripts.Object_Management
         /// 生成游戏对象
         /// </summary>
         /// <param name="shape"></param>
-        public void ConfigureSpawn(Shape shape)
+        public Shape SpawnShape()
         {
-            m_spawnZone.ConfigureSpawn(shape);
+            return m_spawnZone.SpawnShape();
         }
 
         #endregion
