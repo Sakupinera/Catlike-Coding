@@ -382,7 +382,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 存档版本
         /// </summary>
-        private const int SaveVersion = 5;
+        private const int SaveVersion = 6;
 
         #endregion
     }

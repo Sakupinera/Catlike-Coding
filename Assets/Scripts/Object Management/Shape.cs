@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Object_Management
@@ -22,8 +23,11 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         public void GameUpdate()
         {
-            transform.Rotate(AngularVelocity * Time.deltaTime);
-            transform.localPosition += Velocity * Time.deltaTime;
+            Age += Time.deltaTime;
+            for (int i = 0; i < m_behaviorList.Count; i++)
+            {
+                m_behaviorList[i].GameUpdate(this);
+            }
         }
 
         /// <summary>
@@ -88,8 +92,14 @@ namespace Assets.Scripts.Object_Management
             {
                 writer.Write(m_colors[i]);
             }
-            writer.Write(AngularVelocity);
-            writer.Write(Velocity);
+
+            writer.Write(Age);
+            writer.Write(m_behaviorList.Count);
+            for (int i = 0; i < m_behaviorList.Count; i++)
+            {
+                writer.Write((int)m_behaviorList[i].BehaviorType);
+                m_behaviorList[i].Save(writer);
+            }
         }
 
         /// <summary>
@@ -107,8 +117,35 @@ namespace Assets.Scripts.Object_Management
             {
                 SetColor(reader.Version > 0 ? reader.ReadColor() : Color.white);
             }
-            AngularVelocity = reader.Version >= 4 ? reader.ReadVector3() : Vector3.zero;
-            Velocity = reader.Version >=4 ? reader.ReadVector3() : Vector3.zero;
+
+            // 读取行为组件类型
+            if (reader.Version >= 6)
+            {
+                Age = reader.ReadFloat();
+                int behaviorCount = reader.ReadInt();
+                for (int i = 0; i < behaviorCount; i++)
+                {
+                    ShapeBehavior behavior = ((ShapeBehaviorType)reader.ReadInt()).GetInstance();
+                    m_behaviorList.Add(behavior);
+                    behavior.Load(reader);
+                }
+            }
+            else if (reader.Version >= 4)
+            {
+                AddBehavior<RotationShapeBehavior>().AngularVelocity = reader.ReadVector3();
+                AddBehavior<MovementShapeBehavior>().Velocity = reader.ReadVector3();
+            }
+        }
+
+        /// <summary>
+        /// 添加行为组件
+        /// </summary>
+        /// <param name="behavior"></param>
+        public T AddBehavior<T>() where T : ShapeBehavior, new()
+        {
+            T behavior = ShapeBehaviorPool<T>.Get();
+            m_behaviorList.Add(behavior);
+            return behavior;
         }
 
         /// <summary>
@@ -147,6 +184,12 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         public void Recycle()
         {
+            Age = 0f;
+            for (int i = 0; i < m_behaviorList.Count; i++)
+            {
+                m_behaviorList[i].Recycle();
+            }
+            m_behaviorList.Clear();
             OriginFactory.Reclaim(this);
         }
 
@@ -180,16 +223,6 @@ namespace Assets.Scripts.Object_Management
         public int MaterialId { get; private set; }
 
         /// <summary>
-        /// 角速度
-        /// </summary>
-        public Vector3 AngularVelocity { get; set; }
-
-        /// <summary>
-        /// 速度
-        /// </summary>
-        public Vector3 Velocity { get; set; }
-
-        /// <summary>
         /// 颜色数
         /// </summary>
         public int ColorCount
@@ -215,6 +248,11 @@ namespace Assets.Scripts.Object_Management
                 }
             }
         }
+
+        /// <summary>
+        /// 游戏对象的存在时长
+        /// </summary>
+        public float Age { get; private set; }
 
         #endregion
 
@@ -250,6 +288,11 @@ namespace Assets.Scripts.Object_Management
         /// 形状工厂
         /// </summary>
         private ShapeFactory m_originFactory;
+
+        /// <summary>
+        /// 行为对象列表
+        /// </summary>
+        private List<ShapeBehavior> m_behaviorList = new List<ShapeBehavior>();
 
         #endregion
     }
