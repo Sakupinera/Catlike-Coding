@@ -17,6 +17,64 @@ namespace Assets.Scripts.Object_Management
         #region 方法
 
         /// <summary>
+        /// 存档
+        /// </summary>
+        /// <param name="writer"></param>
+        public override void Save(GameDataWriter writer)
+        {
+            writer.Write(m_shapes.Count);
+            writer.Write(Random.state);
+            writer.Write(CreationSpeed);
+            writer.Write(m_creationProgress);
+            writer.Write(DestructionSpeed);
+            writer.Write(m_destructionProgress);
+            writer.Write(m_loadedLevelBuildIndex);
+            GameLevel.Current.Save(writer);
+            foreach (var t in m_shapes)
+            {
+                writer.Write(t.OriginFactory.FactoryId);
+                writer.Write(t.ShapeId);
+                writer.Write(t.MaterialId);
+                t.Save(writer);
+            }
+        }
+
+        /// <summary>
+        /// 读档
+        /// </summary>
+        /// <param name="reader"></param>
+        public override void Load(GameDataReader reader)
+        {
+            int version = reader.Version;
+            if (version > SaveVersion)
+            {
+                Debug.LogError("Unsupported future save version " + version);
+            }
+
+            StartCoroutine(LoadGame(reader));
+        }
+
+        /// <summary>
+        /// 添加形状到引用数组中
+        /// </summary>
+        /// <param name="shape"></param>
+        public void AddShape(Shape shape)
+        {
+            shape.SaveIndex = m_shapes.Count;
+            m_shapes.Add(shape);
+        }
+
+        /// <summary>
+        /// 获取形状
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public Shape GetShape(int index)
+        {
+            return m_shapes[index];
+        }
+
+        /// <summary>
         /// 初始化
         /// </summary>
         private void Start()
@@ -50,7 +108,7 @@ namespace Assets.Scripts.Object_Management
         {
             if (Input.GetKeyDown(m_createKey))
             {
-                CreateShape();
+                GameLevel.Current.SpawnShape();
             }
             else if (Input.GetKeyDown(m_destroyKey))
             {
@@ -100,7 +158,7 @@ namespace Assets.Scripts.Object_Management
             while (m_creationProgress >= 1f)
             {
                 m_creationProgress -= 1f;
-                CreateShape();
+                GameLevel.Current.SpawnShape();
             }
 
             m_destructionProgress += Time.deltaTime * DestructionSpeed;
@@ -109,6 +167,16 @@ namespace Assets.Scripts.Object_Management
                 m_destructionProgress -= 1f;
                 DestroyShape();
             }
+
+            // 限制游戏对象的数量
+            int limit = GameLevel.Current.PopulationLimit;
+            if (limit > 0)
+            {
+                while (m_shapes.Count > limit)
+                {
+                    DestroyShape();
+                }
+            }
         }
 
         /// <summary>
@@ -116,6 +184,8 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void OnEnable()
         {
+            Instance = this;
+
             // 保证工厂Id只被赋值一次
             if (m_shapeFactories[0].FactoryId != 0)
             {
@@ -124,14 +194,6 @@ namespace Assets.Scripts.Object_Management
                     m_shapeFactories[i].FactoryId = i;
                 }
             }
-        }
-
-        /// <summary>
-        /// 创建游戏对象
-        /// </summary>
-        private void CreateShape()
-        {
-            m_shapes.Add(GameLevel.Current.SpawnShape());
         }
 
         /// <summary>
@@ -145,6 +207,7 @@ namespace Assets.Scripts.Object_Management
                 m_shapes[index].Recycle();
                 // 提升数组性能
                 int lastIndex = m_shapes.Count - 1;
+                m_shapes[lastIndex].SaveIndex = index;
                 m_shapes[index] = m_shapes[lastIndex];
                 m_shapes.RemoveAt(lastIndex);
             }
@@ -168,44 +231,6 @@ namespace Assets.Scripts.Object_Management
                 t.Recycle();
             }
             m_shapes.Clear();
-        }
-
-        /// <summary>
-        /// 存档
-        /// </summary>
-        /// <param name="writer"></param>
-        public override void Save(GameDataWriter writer)
-        {
-            writer.Write(m_shapes.Count);
-            writer.Write(Random.state);
-            writer.Write(CreationSpeed);
-            writer.Write(m_creationProgress);
-            writer.Write(DestructionSpeed);
-            writer.Write(m_destructionProgress);
-            writer.Write(m_loadedLevelBuildIndex);
-            GameLevel.Current.Save(writer);
-            foreach (var t in m_shapes)
-            {
-                writer.Write(t.OriginFactory.FactoryId);
-                writer.Write(t.ShapeId);
-                writer.Write(t.MaterialId);
-                t.Save(writer);
-            }
-        }
-
-        /// <summary>
-        /// 读档
-        /// </summary>
-        /// <param name="reader"></param>
-        public override void Load(GameDataReader reader)
-        {
-            int version = reader.Version;
-            if (version > SaveVersion)
-            {
-                Debug.LogError("Unsupported future save version " + version);
-            }
-
-            StartCoroutine(LoadGame(reader));
         }
 
         /// <summary>
@@ -246,7 +271,11 @@ namespace Assets.Scripts.Object_Management
                 int materialId = version > 0 ? reader.ReadInt() : 0;
                 Shape instance = m_shapeFactories[factoryId].Get(shapeId, materialId);
                 instance.Load(reader);
-                m_shapes.Add(instance);
+            }
+
+            for (int i = 0; i < m_shapes.Count; i++)
+            {
+                m_shapes[i].ResolveShapeInstances();
             }
         }
 
@@ -269,6 +298,11 @@ namespace Assets.Scripts.Object_Management
         #endregion
 
         #region 属性
+
+        /// <summary>
+        /// 游戏单例对象
+        /// </summary>
+        public static Game Instance { get; private set; }
 
         /// <summary>
         /// 创建游戏对象的速度

@@ -200,6 +200,19 @@ MonoBehaviour:
     m_oscillationFrequency:
       min: 1
       max: 1
+    m_satellite:
+      m_amount:
+        min: 0
+        max: 3
+      m_relativeScale:
+        min: 0.25
+        max: 0.5
+      m_orbitRadius:
+        min: 1
+        max: 2
+      m_orbitFrequency:
+        min: 0.25
+        max: 0.5
   m_surfaceOnly: 0
 --- !u!1 &599111251
 GameObject:
@@ -372,6 +385,19 @@ MonoBehaviour:
     m_oscillationFrequency:
       min: 1
       max: 1
+    m_satellite:
+      m_amount:
+        min: 0
+        max: 3
+      m_relativeScale:
+        min: 0.25
+        max: 0.5
+      m_orbitRadius:
+        min: 1
+        max: 2
+      m_orbitFrequency:
+        min: 0.25
+        max: 0.5
   m_spawnZones:
   - {fileID: 1553205020}
   - {fileID: 475698589}
@@ -453,6 +479,19 @@ MonoBehaviour:
     m_oscillationFrequency:
       min: 1
       max: 1
+    m_satellite:
+      m_amount:
+        min: 0
+        max: 3
+      m_relativeScale:
+        min: 0.25
+        max: 0.5
+      m_orbitRadius:
+        min: 1
+        max: 2
+      m_orbitFrequency:
+        min: 0.25
+        max: 0.5
   m_surfaceOnly: 0
 --- !u!1 &1701879525
 GameObject:
@@ -582,6 +621,7 @@ MonoBehaviour:
   - {fileID: 1175823571}
   - {fileID: 599111253}
   - {fileID: 1223536821}
+  m_populationLimit: 100
 --- !u!4 &1702157538
 Transform:
   m_ObjectHideFlags: 0

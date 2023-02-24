@@ -13,11 +13,13 @@ namespace Assets.Scripts.Object_Management
         /// 更新逻辑
         /// </summary>
         /// <param name="shape"></param>
-        public override void GameUpdate(Shape shape)
+        public override bool GameUpdate(Shape shape)
         {
             float oscillation = Mathf.Sin(2f * Mathf.PI * Frequency * shape.Age);
             shape.transform.localPosition += (oscillation - m_previousOscillation) * Offset;
             m_previousOscillation = oscillation;
+
+            return true;
         }
 
         /// <summary>

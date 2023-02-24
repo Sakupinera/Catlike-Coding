@@ -26,9 +26,9 @@ namespace Assets.Scripts.Object_Management
         /// 生成游戏对象
         /// </summary>
         /// <param name="shape"></param>
-        public Shape SpawnShape()
+        public void SpawnShape()
         {
-            return m_spawnZone.SpawnShape();
+            m_spawnZone.SpawnShape();
         }
 
         #endregion
@@ -68,6 +68,18 @@ namespace Assets.Scripts.Object_Management
 
         #endregion
 
+        #region 属性
+
+        /// <summary>
+        /// 游戏对象的数量限制
+        /// </summary>
+        public int PopulationLimit
+        {
+            get { return m_populationLimit; }
+        }
+
+        #endregion
+
         #region 依赖的字段
 
         /// <summary>
@@ -81,6 +93,12 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         [SerializeField]
         private PersistableObject[] m_persistentObjects;
+
+        /// <summary>
+        /// 游戏对象的数量限制
+        /// </summary>
+        [SerializeField]
+        private int m_populationLimit;
 
         #endregion
     }

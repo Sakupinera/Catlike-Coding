@@ -88,6 +88,15 @@ namespace Assets.Scripts.Object_Management
             return JsonUtility.FromJson<Random.State>(m_reader.ReadString());
         }
 
+        /// <summary>
+        /// 读取形状实例Id
+        /// </summary>
+        /// <returns></returns>
+        public ShapeInstance ReadShapeInstance()
+        {
+            return new ShapeInstance(m_reader.ReadInt32());
+        }
+
         #endregion
 
         #region 属性

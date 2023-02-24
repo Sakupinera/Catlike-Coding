@@ -26,7 +26,11 @@ namespace Assets.Scripts.Object_Management
             Age += Time.deltaTime;
             for (int i = 0; i < m_behaviorList.Count; i++)
             {
-                m_behaviorList[i].GameUpdate(this);
+                if (!m_behaviorList[i].GameUpdate(this))
+                {
+                    m_behaviorList[i].Recycle();
+                    m_behaviorList.RemoveAt(i--);
+                }
             }
         }
 
@@ -185,12 +189,24 @@ namespace Assets.Scripts.Object_Management
         public void Recycle()
         {
             Age = 0f;
+            InstanceId += 1;
             for (int i = 0; i < m_behaviorList.Count; i++)
             {
                 m_behaviorList[i].Recycle();
             }
             m_behaviorList.Clear();
             OriginFactory.Reclaim(this);
+        }
+
+        /// <summary>
+        /// 解析形状实例
+        /// </summary>
+        public void ResolveShapeInstances()
+        {
+            for (int i = 0; i < m_behaviorList.Count; i++)
+            {
+                m_behaviorList[i].ResolveShapeInstances();
+            }
         }
 
         #endregion
@@ -254,6 +270,16 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         public float Age { get; private set; }
 
+        /// <summary>
+        /// 实例Id
+        /// </summary>
+        public int InstanceId { get; private set; }
+
+        /// <summary>
+        /// 存档时的下标
+        /// </summary>
+        public int SaveIndex { get; set; }
+
         #endregion
 
         #region 依赖的字段
@@ -295,5 +321,73 @@ namespace Assets.Scripts.Object_Management
         private List<ShapeBehavior> m_behaviorList = new List<ShapeBehavior>();
 
         #endregion
+    }
+
+    /// <summary>
+    /// 形状实例
+    /// </summary>
+    public struct ShapeInstance
+    {
+        /// <summary>
+        /// 构造方法
+        /// </summary>
+        /// <param name="shape"></param>
+        public ShapeInstance(Shape shape)
+        {
+            Shape = shape;
+            m_instanceIdOrSaveIndex = shape.InstanceId;
+        }
+
+        /// <summary>
+        /// 构造方法
+        /// </summary>
+        /// <param name="saveIndex"></param>
+        public ShapeInstance(int saveIndex)
+        {
+            Shape = null;
+            m_instanceIdOrSaveIndex = saveIndex;
+        }
+
+        /// <summary>
+        /// 隐式转型
+        /// </summary>
+        /// <param name="shape"></param>
+        public static implicit operator ShapeInstance(Shape shape)
+        {
+            return new ShapeInstance(shape);
+        }
+
+        /// <summary>
+        /// 解析实例Id/存档下标
+        /// </summary>
+        public void Resolve()
+        {
+            if (m_instanceIdOrSaveIndex >= 0)
+            {
+                Shape = Game.Instance.GetShape(m_instanceIdOrSaveIndex);
+                m_instanceIdOrSaveIndex = Shape.InstanceId;
+            }
+        }
+
+        /// <summary>
+        /// 作为焦点的形状是否有效
+        /// </summary>
+        public bool IsValid
+        {
+            get
+            {
+                return Shape && m_instanceIdOrSaveIndex == Shape.InstanceId;
+            }
+        }
+
+        /// <summary>
+        /// 形状
+        /// </summary>
+        public Shape Shape { get; private set; }
+
+        /// <summary>
+        /// 实例Id/存档下标
+        /// </summary>
+        private int m_instanceIdOrSaveIndex;
     }
 }

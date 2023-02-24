@@ -13,9 +13,11 @@ namespace Assets.Scripts.Object_Management
         /// 更新逻辑
         /// </summary>
         /// <param name="shape"></param>
-        public override void GameUpdate(Shape shape)
+        public override bool GameUpdate(Shape shape)
         {
             shape.transform.localPosition += Velocity * Time.deltaTime;
+
+            return true;
         }
 
         /// <summary>

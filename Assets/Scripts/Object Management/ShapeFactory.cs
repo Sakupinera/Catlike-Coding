@@ -52,6 +52,8 @@ namespace Assets.Scripts.Object_Management
                 instance.ShapeId = shapeId;
             }
             instance.SetMaterial(m_materials[materialId], materialId);
+
+            Game.Instance.AddShape(instance);
             return instance;
         }
 

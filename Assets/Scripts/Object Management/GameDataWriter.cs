@@ -81,6 +81,15 @@ namespace Assets.Scripts.Object_Management
             m_writer.Write(JsonUtility.ToJson(value));
         }
 
+        /// <summary>
+        /// 写入形状的存档下标
+        /// </summary>
+        /// <param name="value"></param>
+        public void Write(ShapeInstance value)
+        {
+            m_writer.Write(value.IsValid ? value.Shape.SaveIndex : -1);
+        }
+
         #endregion
 
         #region 依赖的字段

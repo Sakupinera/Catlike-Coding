@@ -15,7 +15,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 更新逻辑
         /// </summary>
-        public abstract void GameUpdate(Shape shape);
+        public abstract bool GameUpdate(Shape shape);
 
         /// <summary>
         /// 存档
@@ -33,6 +33,11 @@ namespace Assets.Scripts.Object_Management
         /// 回收对象
         /// </summary>
         public abstract void Recycle();
+
+        /// <summary>
+        /// 解析形状实例
+        /// </summary>
+        public virtual void ResolveShapeInstances() { }
 
 #if UNITY_EDITOR
         /// <summary>
@@ -85,7 +90,12 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 摆动
         /// </summary>
-        Oscillation
+        Oscillation,
+
+        /// <summary>
+        /// 卫星
+        /// </summary>
+        Satellite,
     }
 
     /// <summary>
@@ -108,6 +118,8 @@ namespace Assets.Scripts.Object_Management
                     return ShapeBehaviorPool<RotationShapeBehavior>.Get();
                 case ShapeBehaviorType.Oscillation:
                     return ShapeBehaviorPool<OscillationShapeBehavior>.Get();
+                case ShapeBehaviorType.Satellite:
+                    return ShapeBehaviorPool<SatelliteShapeBehavior>.Get();
             }
 
             Debug.LogError("Forgot to support " + type);

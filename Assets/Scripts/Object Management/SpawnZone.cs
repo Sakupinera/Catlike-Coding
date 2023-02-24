@@ -15,7 +15,7 @@ namespace Assets.Scripts.Object_Management
         /// 生成游戏对象
         /// </summary>
         /// <returns></returns>
-        public virtual Shape SpawnShape()
+        public virtual void SpawnShape()
         {
             int factoryIndex = Random.Range(0, m_spawnConfig.m_factories.Length);
             Shape shape = m_spawnConfig.m_factories[factoryIndex].GetRandom();
@@ -24,17 +24,7 @@ namespace Assets.Scripts.Object_Management
             t.localPosition = SpawnPoint;
             t.localRotation = Random.rotation;
             t.localScale = Vector3.one * m_spawnConfig.m_scale.RandomValueInRange;
-            if (m_spawnConfig.m_uniformColor)
-            {
-                shape.SetColor(m_spawnConfig.m_color.RandomInRange);
-            }
-            else
-            {
-                for (int i = 0; i < shape.ColorCount; i++)
-                {
-                    shape.SetColor(m_spawnConfig.m_color.RandomInRange, i);
-                }
-            }
+            SetupColor(shape);
 
             float angularSpeed = m_spawnConfig.m_angularSpeed.RandomValueInRange;
             if (angularSpeed != 0f)
@@ -50,8 +40,12 @@ namespace Assets.Scripts.Object_Management
                 movement.Velocity = GetDirectionVector(m_spawnConfig.m_movementDirection, t) * speed;
             }
 
-            SetupOscillation(shape);
-            return shape;
+            //SetupOscillation(shape);
+            int satelliteCount = m_spawnConfig.m_satellite.m_amount.RandomValueInRange;
+            for (int i = 0; i < satelliteCount; i++)
+            {
+                CreateSatelliteFor(shape);
+            }
         }
 
         /// <summary>
@@ -90,6 +84,43 @@ namespace Assets.Scripts.Object_Management
             var oscillation = shape.AddBehavior<OscillationShapeBehavior>();
             oscillation.Offset = GetDirectionVector(m_spawnConfig.m_oscillationDirection, shape.transform) * amplitude;
             oscillation.Frequency = frequency;
+        }
+
+        /// <summary>
+        /// 为形状创建一个卫星
+        /// </summary>
+        /// <param name="focalShape"></param>
+        private void CreateSatelliteFor(Shape focalShape)
+        {
+            int factoryIndex = Random.Range(0, m_spawnConfig.m_factories.Length);
+            Shape shape = m_spawnConfig.m_factories[factoryIndex].GetRandom();
+            Transform t = shape.transform;
+            t.localRotation = Random.rotation;
+            t.localScale = focalShape.transform.localScale *
+                           m_spawnConfig.m_satellite.m_relativeScale.RandomValueInRange;
+            SetupColor(shape);
+            shape.AddBehavior<SatelliteShapeBehavior>().Initialize(shape, focalShape,
+                m_spawnConfig.m_satellite.m_orbitRadius.RandomValueInRange,
+                m_spawnConfig.m_satellite.m_orbitFrequency.RandomValueInRange);
+        }
+
+        /// <summary>
+        /// 设置颜色
+        /// </summary>
+        /// <param name="shape"></param>
+        private void SetupColor(Shape shape)
+        {
+            if (m_spawnConfig.m_uniformColor)
+            {
+                shape.SetColor(m_spawnConfig.m_color.RandomInRange);
+            }
+            else
+            {
+                for (int i = 0; i < shape.ColorCount; i++)
+                {
+                    shape.SetColor(m_spawnConfig.m_color.RandomInRange, i);
+                }
+            }
         }
 
         #endregion
@@ -172,6 +203,11 @@ namespace Assets.Scripts.Object_Management
             public FloatRange m_oscillationFrequency;
 
             /// <summary>
+            /// 卫星配置
+            /// </summary>
+            public SatelliteConfiguration m_satellite;
+
+            /// <summary>
             /// 生成游戏对象的运动方向
             /// </summary>
             public enum MovementDirection
@@ -196,6 +232,36 @@ namespace Assets.Scripts.Object_Management
                 /// </summary>
                 Random,
             }
+
+            /// <summary>
+            /// 卫星配置结构
+            /// </summary>
+            [Serializable]
+            public struct SatelliteConfiguration
+            {
+                /// <summary>
+                /// 卫星数量
+                /// </summary>
+                public IntRange m_amount;
+
+                /// <summary>
+                /// 相对大小
+                /// </summary>
+                [FloatRangeSlider(0.1f, 1f)]
+                public FloatRange m_relativeScale;
+
+                /// <summary>
+                /// 环绕半径
+                /// </summary>
+                public FloatRange m_orbitRadius;
+
+                /// <summary>
+                /// 环绕焦点的的速度
+                /// </summary>
+                public FloatRange m_orbitFrequency;
+
+            }
+
         }
 
         #endregion

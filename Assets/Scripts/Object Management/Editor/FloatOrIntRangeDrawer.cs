@@ -6,8 +6,8 @@ namespace Assets.Scripts.Object_Management.Editor
     /// <summary>
     /// 浮点数范围UI
     /// </summary>
-    [CustomPropertyDrawer(typeof(FloatRange))]
-    public class FloatRangeDrawer : PropertyDrawer
+    [CustomPropertyDrawer(typeof(FloatRange)), CustomPropertyDrawer(typeof(IntRange))]
+    public class FloatOrIntRangeDrawer : PropertyDrawer
     {
         /// <summary>
         /// 绘制UI
