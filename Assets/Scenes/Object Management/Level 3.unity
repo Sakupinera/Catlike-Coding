@@ -197,6 +197,16 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+    m_lifecycle:
+      m_growingDuration:
+        min: 1
+        max: 2
+      m_adultDuration:
+        min: 1
+        max: 5
+      m_dyingDuration:
+        min: 1
+        max: 2
   m_surfaceOnly: 0
 --- !u!4 &252193501
 Transform:
@@ -286,6 +296,16 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+    m_lifecycle:
+      m_growingDuration:
+        min: 1
+        max: 2
+      m_adultDuration:
+        min: 1
+        max: 5
+      m_dyingDuration:
+        min: 1
+        max: 2
   m_surfaceOnly: 1
 --- !u!4 &530392135
 Transform:
@@ -375,6 +395,16 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+    m_lifecycle:
+      m_growingDuration:
+        min: 1
+        max: 2
+      m_adultDuration:
+        min: 1
+        max: 5
+      m_dyingDuration:
+        min: 1
+        max: 2
   m_surfaceOnly: 0
 --- !u!4 &740560982
 Transform:
@@ -464,6 +494,16 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+    m_lifecycle:
+      m_growingDuration:
+        min: 1
+        max: 2
+      m_adultDuration:
+        min: 1
+        max: 5
+      m_dyingDuration:
+        min: 1
+        max: 2
   m_surfaceOnly: 1
 --- !u!4 &934042749
 Transform:
@@ -573,6 +613,16 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+    m_lifecycle:
+      m_growingDuration:
+        min: 1
+        max: 2
+      m_adultDuration:
+        min: 1
+        max: 5
+      m_dyingDuration:
+        min: 1
+        max: 2
   m_spawnZones:
   - {fileID: 740560981}
   - {fileID: 934042748}

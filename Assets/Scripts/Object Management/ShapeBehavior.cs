@@ -96,6 +96,21 @@ namespace Assets.Scripts.Object_Management
         /// 卫星
         /// </summary>
         Satellite,
+
+        /// <summary>
+        /// 生长
+        /// </summary>
+        Growing,
+
+        /// <summary>
+        /// 死亡
+        /// </summary>
+        Dying,
+
+        /// <summary>
+        /// 生命周期
+        /// </summary>
+        Lifecycle
     }
 
     /// <summary>
@@ -120,6 +135,12 @@ namespace Assets.Scripts.Object_Management
                     return ShapeBehaviorPool<OscillationShapeBehavior>.Get();
                 case ShapeBehaviorType.Satellite:
                     return ShapeBehaviorPool<SatelliteShapeBehavior>.Get();
+                case ShapeBehaviorType.Growing:
+                    return ShapeBehaviorPool<GrowingShapeBehavior>.Get();
+                case ShapeBehaviorType.Dying:
+                    return ShapeBehaviorPool<DyingShapeBehavior>.Get();
+                case ShapeBehaviorType.Lifecycle:
+                    return ShapeBehaviorPool<LifecycleShapeBehavior>.Get();
             }
 
             Debug.LogError("Forgot to support " + type);

@@ -40,12 +40,19 @@ namespace Assets.Scripts.Object_Management
                 movement.Velocity = GetDirectionVector(m_spawnConfig.m_movementDirection, t) * speed;
             }
 
+            Vector3 lifecycleDurations = m_spawnConfig.m_lifecycle.RandomDurations;
+
             //SetupOscillation(shape);
             int satelliteCount = m_spawnConfig.m_satellite.m_amount.RandomValueInRange;
             for (int i = 0; i < satelliteCount; i++)
             {
-                CreateSatelliteFor(shape);
+                CreateSatelliteFor(shape,
+                    m_spawnConfig.m_satellite.m_uniformLifecycles
+                        ? lifecycleDurations
+                        : m_spawnConfig.m_lifecycle.RandomDurations);
             }
+
+            SetupLifecycle(shape, lifecycleDurations);
         }
 
         /// <summary>
@@ -90,7 +97,7 @@ namespace Assets.Scripts.Object_Management
         /// 为形状创建一个卫星
         /// </summary>
         /// <param name="focalShape"></param>
-        private void CreateSatelliteFor(Shape focalShape)
+        private void CreateSatelliteFor(Shape focalShape, Vector3 lifecycleDurations)
         {
             int factoryIndex = Random.Range(0, m_spawnConfig.m_factories.Length);
             Shape shape = m_spawnConfig.m_factories[factoryIndex].GetRandom();
@@ -102,6 +109,8 @@ namespace Assets.Scripts.Object_Management
             shape.AddBehavior<SatelliteShapeBehavior>().Initialize(shape, focalShape,
                 m_spawnConfig.m_satellite.m_orbitRadius.RandomValueInRange,
                 m_spawnConfig.m_satellite.m_orbitFrequency.RandomValueInRange);
+
+            SetupLifecycle(shape, lifecycleDurations);
         }
 
         /// <summary>
@@ -120,6 +129,36 @@ namespace Assets.Scripts.Object_Management
                 {
                     shape.SetColor(m_spawnConfig.m_color.RandomInRange, i);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 设置生命周期行为
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <param name="durations"></param>
+        private void SetupLifecycle(Shape shape, Vector3 durations)
+        {
+            if (durations.x > 0f)
+            {
+                if (durations.y > 0f || durations.z > 0f)
+                {
+                    shape.AddBehavior<LifecycleShapeBehavior>()
+                        .Initialize(shape, durations.x, durations.y, durations.z);
+                }
+                else
+                {
+                    shape.AddBehavior<GrowingShapeBehavior>().Initialize(shape, durations.x);
+                }
+            }
+            else if (durations.y > 0f)
+            {
+                shape.AddBehavior<LifecycleShapeBehavior>()
+                    .Initialize(shape, durations.x, durations.y, durations.z);
+            }
+            else if (durations.z > 0f)
+            {
+                shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, durations.z);
             }
         }
 
@@ -208,6 +247,11 @@ namespace Assets.Scripts.Object_Management
             public SatelliteConfiguration m_satellite;
 
             /// <summary>
+            /// 生命周期配置
+            /// </summary>
+            public LifecycleConfiguration m_lifecycle;
+
+            /// <summary>
             /// 生成游戏对象的运动方向
             /// </summary>
             public enum MovementDirection
@@ -260,8 +304,50 @@ namespace Assets.Scripts.Object_Management
                 /// </summary>
                 public FloatRange m_orbitFrequency;
 
+                /// <summary>
+                /// 是否用统一的生命周期
+                /// </summary>
+                public bool m_uniformLifecycles;
+
             }
 
+            /// <summary>
+            /// 生命周期配置
+            /// </summary>
+            [Serializable]
+            public struct LifecycleConfiguration
+            {
+                /// <summary>
+                /// 生成的持续时间
+                /// </summary>
+                [FloatRangeSlider(0f, 2f)]
+                public FloatRange m_growingDuration;
+
+                /// <summary>
+                /// 成年持续时间
+                /// </summary>
+                [FloatRangeSlider(0f, 100f)]
+                public FloatRange m_adultDuration;
+
+                /// <summary>
+                /// 消失的持续时间
+                /// </summary>
+                [FloatRangeSlider(0f, 2f)]
+                public FloatRange m_dyingDuration;
+
+                /// <summary>
+                /// 随机的持续时间
+                /// </summary>
+                public Vector3 RandomDurations
+                {
+                    get
+                    {
+                        return new Vector3(m_growingDuration.RandomValueInRange,
+                            m_adultDuration.RandomValueInRange,
+                            m_dyingDuration.RandomValueInRange);
+                    }
+                }
+            }
         }
 
         #endregion

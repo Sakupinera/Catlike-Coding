@@ -197,6 +197,17 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+      m_uniformLifecycles: 0
+    m_lifecycle:
+      m_growingDuration:
+        min: 1
+        max: 2
+      m_adultDuration:
+        min: 1
+        max: 5
+      m_dyingDuration:
+        min: 1
+        max: 2
   m_surfaceOnly: 0
 --- !u!4 &1637039788
 Transform:

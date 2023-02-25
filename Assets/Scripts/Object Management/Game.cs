@@ -75,6 +75,74 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
+        /// 销毁形状
+        /// </summary>
+        /// <param name="shape"></param>
+        public void Kill(Shape shape)
+        {
+            if (m_inGameUpdateLoop)
+            {
+                m_killList.Add(shape);
+            }
+            else
+            {
+                KillImmediately(shape);
+            }
+        }
+
+        /// <summary>
+        /// 将对象标记为垂死状态
+        /// </summary>
+        /// <param name="shape"></param>
+        public void MarkAsDying(Shape shape)
+        {
+            if (m_inGameUpdateLoop)
+            {
+                m_markAsDyingList.Add(shape);
+            }
+            else
+            {
+                MarkAsDyingImmediately(shape);
+            }
+        }
+
+        /// <summary>
+        /// 游戏对象是否被标记为垂死状态
+        /// </summary>
+        /// <param name="shape"></param>
+        /// <returns></returns>
+        public bool IsMarkedAsDying(Shape shape)
+        {
+            return shape.SaveIndex < m_dyingShapeCount;
+        }
+
+        /// <summary>
+        /// 立即杀死游戏对象
+        /// </summary>
+        /// <param name="shape"></param>
+        private void KillImmediately(Shape shape)
+        {
+            int index = shape.SaveIndex;
+            shape.Recycle();
+
+            // Double move when killing a dying shape.
+            if (index < m_dyingShapeCount && index < --m_dyingShapeCount)
+            {
+                m_shapes[m_dyingShapeCount].SaveIndex = index;
+                m_shapes[index] = m_shapes[m_dyingShapeCount];
+                index = m_dyingShapeCount;
+            }
+
+            int lastIndex = m_shapes.Count - 1;
+            if (index < lastIndex)
+            {
+                m_shapes[lastIndex].SaveIndex = index;
+                m_shapes[index] = m_shapes[lastIndex];
+            }
+            m_shapes.RemoveAt(lastIndex);
+        }
+
+        /// <summary>
         /// 初始化
         /// </summary>
         private void Start()
@@ -82,6 +150,8 @@ namespace Assets.Scripts.Object_Management
             m_mainRandomState = Random.state;
 
             m_shapes = new List<Shape>();
+            m_killList = new List<ShapeInstance>();
+            m_markAsDyingList = new List<ShapeInstance>();
 
             if (Application.isEditor)
             {
@@ -147,11 +217,13 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void FixedUpdate()
         {
+            m_inGameUpdateLoop = true;
             // 更新每个形状单独的逻辑
             for (int i = 0; i < m_shapes.Count; i++)
             {
                 m_shapes[i].GameUpdate();
             }
+            m_inGameUpdateLoop = false;
 
             // 当进度达到1时，创建新的游戏对象
             m_creationProgress += Time.deltaTime * CreationSpeed;
@@ -172,10 +244,36 @@ namespace Assets.Scripts.Object_Management
             int limit = GameLevel.Current.PopulationLimit;
             if (limit > 0)
             {
-                while (m_shapes.Count > limit)
+                while (m_shapes.Count - m_dyingShapeCount > limit)
                 {
                     DestroyShape();
                 }
+            }
+
+            if (m_killList.Count > 0)
+            {
+                for (int i = 0; i < m_killList.Count; i++)
+                {
+                    if (m_killList[i].IsValid)
+                    {
+                        KillImmediately(m_killList[i].Shape);
+                    }
+                }
+
+                m_killList.Clear();
+            }
+
+            if (m_markAsDyingList.Count > 0)
+            {
+                for (int i = 0; i < m_markAsDyingList.Count; i++)
+                {
+                    if (m_markAsDyingList[i].IsValid)
+                    {
+                        MarkAsDyingImmediately(m_markAsDyingList[i].Shape);
+                    }
+                }
+
+                m_markAsDyingList.Clear();
             }
         }
 
@@ -201,15 +299,17 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         private void DestroyShape()
         {
-            if (m_shapes.Count > 0)
+            if (m_shapes.Count - m_dyingShapeCount > 0)
             {
-                int index = Random.Range(0, m_shapes.Count);
-                m_shapes[index].Recycle();
-                // 提升数组性能
-                int lastIndex = m_shapes.Count - 1;
-                m_shapes[lastIndex].SaveIndex = index;
-                m_shapes[index] = m_shapes[lastIndex];
-                m_shapes.RemoveAt(lastIndex);
+                Shape shape = m_shapes[Random.Range(m_dyingShapeCount, m_shapes.Count)];
+                if (m_destroyDuration <= 0f)
+                {
+                    KillImmediately(shape);
+                }
+                else
+                {
+                    shape.AddBehavior<DyingShapeBehavior>().Initialize(shape, m_destroyDuration);
+                }
             }
         }
 
@@ -231,6 +331,7 @@ namespace Assets.Scripts.Object_Management
                 t.Recycle();
             }
             m_shapes.Clear();
+            m_dyingShapeCount = 0;
         }
 
         /// <summary>
@@ -293,6 +394,23 @@ namespace Assets.Scripts.Object_Management
             SceneManager.SetActiveScene(SceneManager.GetSceneByBuildIndex(levelBuildIndex));
             m_loadedLevelBuildIndex = levelBuildIndex;
             enabled = true;
+        }
+
+        /// <summary>
+        /// 标记垂死游戏对象
+        /// </summary>
+        /// <param name="shape"></param>
+        private void MarkAsDyingImmediately(Shape shape)
+        {
+            int index = shape.SaveIndex;
+            if (index < m_dyingShapeCount)
+            {
+                return;
+            }
+            m_shapes[m_dyingShapeCount].SaveIndex = index;
+            m_shapes[index] = m_shapes[m_dyingShapeCount];
+            shape.SaveIndex = m_dyingShapeCount;
+            m_shapes[m_dyingShapeCount++] = shape;
         }
 
         #endregion
@@ -385,9 +503,25 @@ namespace Assets.Scripts.Object_Management
         private Slider m_destructionSpeedSlider;
 
         /// <summary>
+        /// 销毁持续时间
+        /// </summary>
+        [SerializeField]
+        private float m_destroyDuration;
+
+        /// <summary>
         /// 游戏对象列表
         /// </summary>
         private List<Shape> m_shapes;
+
+        /// <summary>
+        /// 需要杀死的游戏对象列表
+        /// </summary>
+        private List<ShapeInstance> m_killList;
+
+        /// <summary>
+        /// 标记为垂死的游戏对象列表
+        /// </summary>
+        private List<ShapeInstance> m_markAsDyingList;
 
         /// <summary>
         /// 创建新的游戏对象的进度
@@ -408,6 +542,16 @@ namespace Assets.Scripts.Object_Management
         /// 随机状态
         /// </summary>
         private Random.State m_mainRandomState;
+
+        /// <summary>
+        /// 是否处于游戏逻辑循环
+        /// </summary>
+        private bool m_inGameUpdateLoop;
+
+        /// <summary>
+        /// 垂死游戏对象的数量
+        /// </summary>
+        private int m_dyingShapeCount;
 
         #endregion
 

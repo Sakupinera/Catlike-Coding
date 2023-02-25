@@ -13,7 +13,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 初始化
         /// </summary>
-        void Awake()
+        private void Awake()
         {
             m_colors = new Color[m_meshRenderers.Length];
         }
@@ -153,6 +153,14 @@ namespace Assets.Scripts.Object_Management
         }
 
         /// <summary>
+        /// 死亡
+        /// </summary>
+        public void Die()
+        {
+            Game.Instance.Kill(this);
+        }
+
+        /// <summary>
         /// 读取颜色信息
         /// </summary>
         /// <param name="reader"></param>
@@ -207,6 +215,14 @@ namespace Assets.Scripts.Object_Management
             {
                 m_behaviorList[i].ResolveShapeInstances();
             }
+        }
+
+        /// <summary>
+        /// 将游戏对象标记为垂死状态
+        /// </summary>
+        public void MarkAsDying()
+        {
+            Game.Instance.MarkAsDying(this);
         }
 
         #endregion
@@ -279,6 +295,14 @@ namespace Assets.Scripts.Object_Management
         /// 存档时的下标
         /// </summary>
         public int SaveIndex { get; set; }
+
+        /// <summary>
+        /// 游戏对象是否被标记为垂死状态
+        /// </summary>
+        public bool IsMarkedAsDying
+        {
+            get { return Game.Instance.IsMarkedAsDying(this); }
+        }
 
         #endregion
 
