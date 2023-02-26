@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Assets.Scripts.Object_Management
@@ -6,9 +7,20 @@ namespace Assets.Scripts.Object_Management
     /// <summary>
     /// 游戏关卡
     /// </summary>
-    public class GameLevel : PersistableObject
+    public partial class GameLevel : PersistableObject
     {
         #region 方法
+
+        /// <summary>
+        /// 游戏更新逻辑
+        /// </summary>
+        public void GameUpdate()
+        {
+            for (int i = 0; i < m_levelObjects.Length; i++)
+            {
+                m_levelObjects[i].GameUpdate();
+            }
+        }
 
         /// <summary>
         /// 当游戏关卡被激活时，重新赋值
@@ -16,9 +28,9 @@ namespace Assets.Scripts.Object_Management
         private void OnEnable()
         {
             Current = this;
-            if (m_persistentObjects == null)
+            if (m_levelObjects == null)
             {
-                m_persistentObjects = Array.Empty<PersistableObject>();
+                m_levelObjects = Array.Empty<GameLevelObject>();
             }
         }
 
@@ -26,9 +38,9 @@ namespace Assets.Scripts.Object_Management
         /// 生成游戏对象
         /// </summary>
         /// <param name="shape"></param>
-        public void SpawnShape()
+        public void SpawnShapes()
         {
-            m_spawnZone.SpawnShape();
+            m_spawnZone.SpawnShapes();
         }
 
         #endregion
@@ -46,10 +58,10 @@ namespace Assets.Scripts.Object_Management
         /// <param name="writer"></param>
         public override void Save(GameDataWriter writer)
         {
-            writer.Write(m_persistentObjects.Length);
-            for (int i = 0; i < m_persistentObjects.Length; i++)
+            writer.Write(m_levelObjects.Length);
+            for (int i = 0; i < m_levelObjects.Length; i++)
             {
-                m_persistentObjects[i].Save(writer);
+                m_levelObjects[i].Save(writer);
             }
         }
 
@@ -62,7 +74,7 @@ namespace Assets.Scripts.Object_Management
             int savedCount = reader.ReadInt();
             for (int i = 0; i < savedCount; i++)
             {
-                m_persistentObjects[i].Load(reader);
+                m_levelObjects[i].Load(reader);
             }
         }
 
@@ -91,8 +103,9 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 持续化存储对象的数组
         /// </summary>
+        [UnityEngine.Serialization.FormerlySerializedAs("m_persistentObjects")]
         [SerializeField]
-        private PersistableObject[] m_persistentObjects;
+        private GameLevelObject[] m_levelObjects;
 
         /// <summary>
         /// 游戏对象的数量限制

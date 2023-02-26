@@ -197,6 +197,7 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+      m_uniformLifecycles: 0
     m_lifecycle:
       m_growingDuration:
         min: 1
@@ -207,6 +208,7 @@ MonoBehaviour:
       m_dyingDuration:
         min: 1
         max: 2
+  m_spawnSpeed: 0
   m_surfaceOnly: 0
 --- !u!4 &252193501
 Transform:
@@ -296,6 +298,7 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+      m_uniformLifecycles: 0
     m_lifecycle:
       m_growingDuration:
         min: 1
@@ -306,6 +309,7 @@ MonoBehaviour:
       m_dyingDuration:
         min: 1
         max: 2
+  m_spawnSpeed: 0
   m_surfaceOnly: 1
 --- !u!4 &530392135
 Transform:
@@ -395,6 +399,7 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+      m_uniformLifecycles: 0
     m_lifecycle:
       m_growingDuration:
         min: 1
@@ -405,6 +410,7 @@ MonoBehaviour:
       m_dyingDuration:
         min: 1
         max: 2
+  m_spawnSpeed: 0
   m_surfaceOnly: 0
 --- !u!4 &740560982
 Transform:
@@ -494,6 +500,7 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+      m_uniformLifecycles: 0
     m_lifecycle:
       m_growingDuration:
         min: 1
@@ -504,6 +511,7 @@ MonoBehaviour:
       m_dyingDuration:
         min: 1
         max: 2
+  m_spawnSpeed: 0
   m_surfaceOnly: 1
 --- !u!4 &934042749
 Transform:
@@ -613,6 +621,7 @@ MonoBehaviour:
       m_orbitFrequency:
         min: 0.25
         max: 0.5
+      m_uniformLifecycles: 0
     m_lifecycle:
       m_growingDuration:
         min: 1
@@ -623,6 +632,7 @@ MonoBehaviour:
       m_dyingDuration:
         min: 1
         max: 2
+  m_spawnSpeed: 50
   m_spawnZones:
   - {fileID: 740560981}
   - {fileID: 934042748}
@@ -754,9 +764,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_spawnZone: {fileID: 1637039789}
-  m_persistentObjects:
+  m_levelObjects:
   - {fileID: 1637039789}
-  m_populationLimit: 100
+  m_populationLimit: 0
 --- !u!4 &1702157538
 Transform:
   m_ObjectHideFlags: 0

@@ -178,7 +178,7 @@ namespace Assets.Scripts.Object_Management
         {
             if (Input.GetKeyDown(m_createKey))
             {
-                GameLevel.Current.SpawnShape();
+                GameLevel.Current.SpawnShapes();
             }
             else if (Input.GetKeyDown(m_destroyKey))
             {
@@ -223,6 +223,7 @@ namespace Assets.Scripts.Object_Management
             {
                 m_shapes[i].GameUpdate();
             }
+            GameLevel.Current.GameUpdate();
             m_inGameUpdateLoop = false;
 
             // 当进度达到1时，创建新的游戏对象
@@ -230,7 +231,7 @@ namespace Assets.Scripts.Object_Management
             while (m_creationProgress >= 1f)
             {
                 m_creationProgress -= 1f;
-                GameLevel.Current.SpawnShape();
+                GameLevel.Current.SpawnShapes();
             }
 
             m_destructionProgress += Time.deltaTime * DestructionSpeed;
@@ -560,7 +561,7 @@ namespace Assets.Scripts.Object_Management
         /// <summary>
         /// 存档版本
         /// </summary>
-        private const int SaveVersion = 6;
+        private const int SaveVersion = 7;
 
         #endregion
     }

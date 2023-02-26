@@ -5,14 +5,14 @@ namespace Assets.Scripts.Object_Management
     /// <summary>
     /// 旋转的物体
     /// </summary>
-    public class RotatingObject :PersistableObject
+    public class RotatingObject : GameLevelObject
     {
         #region 方法
 
         /// <summary>
-        /// 逐帧更新
+        /// 对象更新逻辑
         /// </summary>
-        private void FixedUpdate()
+        public override void GameUpdate()
         {
             transform.Rotate(m_angularVelocity * Time.deltaTime);
         }

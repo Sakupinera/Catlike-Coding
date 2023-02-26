@@ -39,6 +39,7 @@ namespace Assets.Scripts.Object_Management
         /// <param name="writer"></param>
         public override void Save(GameDataWriter writer)
         {
+            base.Save(writer);
             writer.Write(m_nextSequentialIndex);
         }
 
@@ -48,6 +49,10 @@ namespace Assets.Scripts.Object_Management
         /// <param name="reader"></param>
         public override void Load(GameDataReader reader)
         {
+            if (reader.Version >= 7)
+            {
+                base.Load(reader);
+            }
             m_nextSequentialIndex = reader.ReadInt();
         }
 
@@ -55,11 +60,11 @@ namespace Assets.Scripts.Object_Management
         /// 生成游戏对象
         /// </summary>
         /// <param name="shape"></param>
-        public override void SpawnShape()
+        public override void SpawnShapes()
         {
             if (m_overrideConfig)
             {
-                base.SpawnShape();
+                base.SpawnShapes();
             }
             else
             {
@@ -76,7 +81,7 @@ namespace Assets.Scripts.Object_Management
                 {
                     index = Random.Range(0, m_spawnZones.Length);
                 }
-                m_spawnZones[index].SpawnShape();
+                m_spawnZones[index].SpawnShapes();
             }
         }
 

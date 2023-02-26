@@ -7,18 +7,50 @@ namespace Assets.Scripts.Object_Management
     /// <summary>
     /// 游戏对象生成区域
     /// </summary>
-    public abstract class SpawnZone : PersistableObject
+    public abstract class SpawnZone : GameLevelObject
     {
         #region 方法
+
+        /// <summary>
+        /// 对象更新逻辑
+        /// </summary>
+        public override void GameUpdate()
+        {
+            m_spawnProgress += Time.deltaTime * m_spawnSpeed;
+            while (m_spawnProgress >= 1f)
+            {
+                m_spawnProgress -= 1f;
+                SpawnShapes();
+            }
+        }
+
+        /// <summary>
+        /// 存档
+        /// </summary>
+        /// <param name="writer"></param>
+        public override void Save(GameDataWriter writer)
+        {
+            writer.Write(m_spawnProgress);
+        }
+
+        /// <summary>
+        /// 读档
+        /// </summary>
+        /// <param name="reader"></param>
+        public override void Load(GameDataReader reader)
+        {
+            m_spawnProgress = reader.ReadFloat();
+        }
 
         /// <summary>
         /// 生成游戏对象
         /// </summary>
         /// <returns></returns>
-        public virtual void SpawnShape()
+        public virtual void SpawnShapes()
         {
             int factoryIndex = Random.Range(0, m_spawnConfig.m_factories.Length);
             Shape shape = m_spawnConfig.m_factories[factoryIndex].GetRandom();
+            shape.gameObject.layer = gameObject.layer;
 
             Transform t = shape.transform;
             t.localPosition = SpawnPoint;
@@ -101,6 +133,8 @@ namespace Assets.Scripts.Object_Management
         {
             int factoryIndex = Random.Range(0, m_spawnConfig.m_factories.Length);
             Shape shape = m_spawnConfig.m_factories[factoryIndex].GetRandom();
+            shape.gameObject.layer = gameObject.layer;
+
             Transform t = shape.transform;
             t.localRotation = Random.rotation;
             t.localScale = focalShape.transform.localScale *
@@ -180,6 +214,17 @@ namespace Assets.Scripts.Object_Management
         /// </summary>
         [SerializeField]
         private SpawnConfiguration m_spawnConfig;
+
+        /// <summary>
+        /// 生成速度
+        /// </summary>
+        [SerializeField, Range(0f, 50f)]
+        private float m_spawnSpeed;
+
+        /// <summary>
+        /// 生成进度
+        /// </summary>
+        private float m_spawnProgress;
 
         #endregion
 
